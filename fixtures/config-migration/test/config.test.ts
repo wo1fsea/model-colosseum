@@ -95,3 +95,36 @@ test("damaged config fails with an actionable error and does not overwrite the f
 	await assert.rejects(() => loadConfig(file), /Invalid config JSON|Unexpected end/);
 	assert.equal(await readFile(file, "utf8"), '{"endpoint":');
 });
+
+test("v1 config without version field migrates correctly", async () => {
+	const file = await tempConfig({ endpoint: "https://api.example.com" });
+	const config = await loadConfig(file);
+
+	assert.deepEqual(config, {
+		version: 2,
+		activeProfile: "default",
+		profiles: {
+			default: {
+				endpoint: "https://api.example.com",
+				timeoutMs: 30000,
+			},
+		},
+	});
+});
+
+test("v1 config missing timeoutMs gets sensible default", async () => {
+	const file = await tempConfig({ endpoint: "https://api.example.com", token: "secret" });
+	const config = await loadConfig(file);
+
+	assert.equal(config.profiles.default.timeoutMs, 30000);
+});
+
+test("setEndpoint on v1 config returns v2 shape", async () => {
+	const v1Config = { endpoint: "http://old", token: "secret" };
+	const result = setEndpoint(v1Config, "http://new");
+
+	assert.equal(result.version, 2);
+	assert.equal(result.activeProfile, "default");
+	assert.equal(result.profiles.default.endpoint, "http://new");
+	assert.equal(result.profiles.default.token, "secret");
+});
