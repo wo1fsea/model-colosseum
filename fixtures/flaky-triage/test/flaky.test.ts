@@ -18,10 +18,11 @@ test("UTC day bucketing is stable across local timezones", () => {
 	const buckets = bucketByUtcDay([
 		"2026-04-02T01:15:00Z",
 		"2026-04-02T23:30:00Z",
+		"2026-04-01T23:30:00-02:00",
 	]);
 
 	assert.deepEqual(buckets, {
-		"2026-04-02": 2,
+		"2026-04-02": 3,
 	});
 });
 
@@ -38,4 +39,15 @@ test("session factory remains isolated over repeated calls", () => {
 		const session = createSession({ id: `user-${i}` });
 		assert.deepEqual(session.roles, []);
 	}
+});
+
+test("session factory clones supplied roles", () => {
+	const roles = ["reader"];
+	const session = createSession({ id: "reader", roles });
+
+	roles.push("writer");
+	addRole(session, "admin");
+
+	assert.deepEqual(roles, ["reader", "writer"]);
+	assert.deepEqual(session, { id: "reader", roles: ["reader", "admin"] });
 });

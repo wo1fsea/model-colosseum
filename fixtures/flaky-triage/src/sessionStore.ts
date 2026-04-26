@@ -9,7 +9,10 @@ const defaultSession: Session = {
 };
 
 export function createSession(overrides: Partial<Session> = {}): Session {
-	return Object.assign(defaultSession, overrides);
+	return {
+		id: overrides.id ?? defaultSession.id,
+		roles: [...(overrides.roles ?? defaultSession.roles)],
+	};
 }
 
 export function addRole(session: Session, role: string): Session {
