@@ -1,0 +1,12 @@
+{
+  "name": "config-migration-fixture",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "config-demo": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
