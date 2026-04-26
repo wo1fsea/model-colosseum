@@ -1,0 +1,728 @@
+[
+  {
+    "taskId": "config-migration",
+    "runId": "config-migration__pi__openai-codex__gpt-5.5-high__a01",
+    "provider": "openai-codex",
+    "model": "gpt-5.5",
+    "commit": "43e7089",
+    "estimatedCost": 0.346059,
+    "durationMs": 102062,
+    "original": {
+      "status": "passed",
+      "passed": 10,
+      "expected": 10
+    },
+    "hidden": {
+      "passed": 6,
+      "total": 6,
+      "cases": [
+        {
+          "name": "v1 without timeout migrates with a sensible numeric default",
+          "ok": true
+        },
+        {
+          "name": "loadConfig migration does not write back to disk",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint does not mutate the original v2 object",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint preserves inactive profiles exactly",
+          "ok": true
+        },
+        {
+          "name": "saveConfig writes pretty JSON with trailing newline",
+          "ok": true
+        },
+        {
+          "name": "getActiveEndpoint returns selected v2 profile endpoint",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "config-migration",
+    "runId": "config-migration__pi__openrouter__minimax-minimax-m2.7-high__a01",
+    "provider": "openrouter",
+    "model": "minimax/minimax-m2.7",
+    "commit": "edea481",
+    "estimatedCost": 0.008662,
+    "durationMs": 73761,
+    "original": {
+      "status": "passed",
+      "passed": 5,
+      "expected": 10
+    },
+    "hidden": {
+      "passed": 5,
+      "total": 6,
+      "cases": [
+        {
+          "name": "v1 without timeout migrates with a sensible numeric default",
+          "ok": true
+        },
+        {
+          "name": "loadConfig migration does not write back to disk",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint does not mutate the original v2 object",
+          "ok": false,
+          "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'http://new-dev'\n- 'http://old-dev'\n          ^\n"
+        },
+        {
+          "name": "setEndpoint preserves inactive profiles exactly",
+          "ok": true
+        },
+        {
+          "name": "saveConfig writes pretty JSON with trailing newline",
+          "ok": true
+        },
+        {
+          "name": "getActiveEndpoint returns selected v2 profile endpoint",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "config-migration",
+    "runId": "config-migration__pi__openrouter__xiaomi-mimo-v2-pro-high__a01",
+    "provider": "openrouter",
+    "model": "xiaomi/mimo-v2-pro",
+    "commit": "48206c2",
+    "estimatedCost": 0.049537,
+    "durationMs": 128078,
+    "original": {
+      "status": "passed",
+      "passed": 8,
+      "expected": 10
+    },
+    "hidden": {
+      "passed": 6,
+      "total": 6,
+      "cases": [
+        {
+          "name": "v1 without timeout migrates with a sensible numeric default",
+          "ok": true
+        },
+        {
+          "name": "loadConfig migration does not write back to disk",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint does not mutate the original v2 object",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint preserves inactive profiles exactly",
+          "ok": true
+        },
+        {
+          "name": "saveConfig writes pretty JSON with trailing newline",
+          "ok": true
+        },
+        {
+          "name": "getActiveEndpoint returns selected v2 profile endpoint",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "config-migration",
+    "runId": "config-migration__pi__openrouter__z-ai-glm-5.1-high__a01",
+    "provider": "openrouter",
+    "model": "z-ai/glm-5.1",
+    "commit": "0c73540",
+    "estimatedCost": 0.034771,
+    "durationMs": 130461,
+    "original": {
+      "status": "passed",
+      "passed": 11,
+      "expected": 10
+    },
+    "hidden": {
+      "passed": 6,
+      "total": 6,
+      "cases": [
+        {
+          "name": "v1 without timeout migrates with a sensible numeric default",
+          "ok": true
+        },
+        {
+          "name": "loadConfig migration does not write back to disk",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint does not mutate the original v2 object",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint preserves inactive profiles exactly",
+          "ok": true
+        },
+        {
+          "name": "saveConfig writes pretty JSON with trailing newline",
+          "ok": true
+        },
+        {
+          "name": "getActiveEndpoint returns selected v2 profile endpoint",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "config-migration",
+    "runId": "config-migration__pi__openrouter__moonshotai-kimi-k2.6-high__a01",
+    "provider": "openrouter",
+    "model": "moonshotai/kimi-k2.6",
+    "commit": "8a31945",
+    "estimatedCost": 0.021411,
+    "durationMs": 70550,
+    "original": {
+      "status": "passed",
+      "passed": 5,
+      "expected": 10
+    },
+    "hidden": {
+      "passed": 6,
+      "total": 6,
+      "cases": [
+        {
+          "name": "v1 without timeout migrates with a sensible numeric default",
+          "ok": true
+        },
+        {
+          "name": "loadConfig migration does not write back to disk",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint does not mutate the original v2 object",
+          "ok": true
+        },
+        {
+          "name": "setEndpoint preserves inactive profiles exactly",
+          "ok": true
+        },
+        {
+          "name": "saveConfig writes pretty JSON with trailing newline",
+          "ok": true
+        },
+        {
+          "name": "getActiveEndpoint returns selected v2 profile endpoint",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "flaky-triage",
+    "runId": "flaky-triage__pi__openai-codex__gpt-5.5-high__a01",
+    "provider": "openai-codex",
+    "model": "gpt-5.5",
+    "commit": "a18bb5a",
+    "estimatedCost": 0.137746,
+    "durationMs": 47397,
+    "original": {
+      "status": "passed",
+      "passed": 5,
+      "expected": 5
+    },
+    "hidden": {
+      "passed": 5,
+      "total": 5,
+      "cases": [
+        {
+          "name": "async batch keeps input order over repeated mixed delays",
+          "ok": true
+        },
+        {
+          "name": "async batch starts tasks concurrently",
+          "ok": true
+        },
+        {
+          "name": "UTC bucketing handles timestamps with explicit offsets",
+          "ok": true
+        },
+        {
+          "name": "sessions do not share default roles across calls",
+          "ok": true
+        },
+        {
+          "name": "createSession clones override roles arrays",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "flaky-triage",
+    "runId": "flaky-triage__pi__openrouter__minimax-minimax-m2.7-high__a01",
+    "provider": "openrouter",
+    "model": "minimax/minimax-m2.7",
+    "commit": "477a989",
+    "estimatedCost": 0.008575,
+    "durationMs": 57654,
+    "original": {
+      "status": "passed",
+      "passed": 4,
+      "expected": 5
+    },
+    "hidden": {
+      "passed": 4,
+      "total": 5,
+      "cases": [
+        {
+          "name": "async batch keeps input order over repeated mixed delays",
+          "ok": true
+        },
+        {
+          "name": "async batch starts tasks concurrently",
+          "ok": true
+        },
+        {
+          "name": "UTC bucketing handles timestamps with explicit offsets",
+          "ok": true
+        },
+        {
+          "name": "sessions do not share default roles across calls",
+          "ok": true
+        },
+        {
+          "name": "createSession clones override roles arrays",
+          "ok": false,
+          "message": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   'member'\n- ]\n"
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "flaky-triage",
+    "runId": "flaky-triage__pi__openrouter__xiaomi-mimo-v2-pro-high__a01",
+    "provider": "openrouter",
+    "model": "xiaomi/mimo-v2-pro",
+    "commit": "3e392c6",
+    "estimatedCost": 0.019502,
+    "durationMs": 60772,
+    "original": {
+      "status": "passed",
+      "passed": 4,
+      "expected": 5
+    },
+    "hidden": {
+      "passed": 5,
+      "total": 5,
+      "cases": [
+        {
+          "name": "async batch keeps input order over repeated mixed delays",
+          "ok": true
+        },
+        {
+          "name": "async batch starts tasks concurrently",
+          "ok": true
+        },
+        {
+          "name": "UTC bucketing handles timestamps with explicit offsets",
+          "ok": true
+        },
+        {
+          "name": "sessions do not share default roles across calls",
+          "ok": true
+        },
+        {
+          "name": "createSession clones override roles arrays",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "flaky-triage",
+    "runId": "flaky-triage__pi__openrouter__z-ai-glm-5.1-high__a01",
+    "provider": "openrouter",
+    "model": "z-ai/glm-5.1",
+    "commit": "b1ccde4",
+    "estimatedCost": 0.024507,
+    "durationMs": 49842,
+    "original": {
+      "status": "passed",
+      "passed": 4,
+      "expected": 5
+    },
+    "hidden": {
+      "passed": 4,
+      "total": 5,
+      "cases": [
+        {
+          "name": "async batch keeps input order over repeated mixed delays",
+          "ok": true
+        },
+        {
+          "name": "async batch starts tasks concurrently",
+          "ok": true
+        },
+        {
+          "name": "UTC bucketing handles timestamps with explicit offsets",
+          "ok": true
+        },
+        {
+          "name": "sessions do not share default roles across calls",
+          "ok": true
+        },
+        {
+          "name": "createSession clones override roles arrays",
+          "ok": false,
+          "message": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'member',\n+   'external-mutation'\n  ]\n"
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "flaky-triage",
+    "runId": "flaky-triage__pi__openrouter__moonshotai-kimi-k2.6-high__a01",
+    "provider": "openrouter",
+    "model": "moonshotai/kimi-k2.6",
+    "commit": "3c51256",
+    "estimatedCost": 0.014963,
+    "durationMs": 42614,
+    "original": {
+      "status": "passed",
+      "passed": 4,
+      "expected": 5
+    },
+    "hidden": {
+      "passed": 5,
+      "total": 5,
+      "cases": [
+        {
+          "name": "async batch keeps input order over repeated mixed delays",
+          "ok": true
+        },
+        {
+          "name": "async batch starts tasks concurrently",
+          "ok": true
+        },
+        {
+          "name": "UTC bucketing handles timestamps with explicit offsets",
+          "ok": true
+        },
+        {
+          "name": "sessions do not share default roles across calls",
+          "ok": true
+        },
+        {
+          "name": "createSession clones override roles arrays",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "json-patch-engine",
+    "runId": "json-patch-engine__pi__openai-codex__gpt-5.5-high__a01",
+    "provider": "openai-codex",
+    "model": "gpt-5.5",
+    "commit": "9276935",
+    "estimatedCost": 0.365379,
+    "durationMs": 131878,
+    "original": {
+      "status": "passed",
+      "passed": 8,
+      "expected": 8
+    },
+    "hidden": {
+      "passed": 10,
+      "total": 10,
+      "cases": [
+        {
+          "name": "replace must fail when object key is missing",
+          "ok": true
+        },
+        {
+          "name": "remove must fail when array index is out of range",
+          "ok": true
+        },
+        {
+          "name": "array add rejects sparse indexes",
+          "ok": true
+        },
+        {
+          "name": "add fails when an intermediate parent path is missing",
+          "ok": true
+        },
+        {
+          "name": "remove fails when an object key is missing",
+          "ok": true
+        },
+        {
+          "name": "JSON Pointer escaping covers slash and tilde keys",
+          "ok": true
+        },
+        {
+          "name": "test uses structural equality independent of object key order",
+          "ok": true
+        },
+        {
+          "name": "move within the same array follows remove-then-add semantics",
+          "ok": true
+        },
+        {
+          "name": "copy creates an independent deep clone",
+          "ok": true
+        },
+        {
+          "name": "root add replaces the entire document without mutating original",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "json-patch-engine",
+    "runId": "json-patch-engine__pi__openrouter__minimax-minimax-m2.7-high__a01",
+    "provider": "openrouter",
+    "model": "minimax/minimax-m2.7",
+    "commit": "15d084b",
+    "estimatedCost": 0.015943,
+    "durationMs": 164229,
+    "original": {
+      "status": "passed",
+      "passed": 5,
+      "expected": 8
+    },
+    "hidden": {
+      "passed": 8,
+      "total": 10,
+      "cases": [
+        {
+          "name": "replace must fail when object key is missing",
+          "ok": true
+        },
+        {
+          "name": "remove must fail when array index is out of range",
+          "ok": true
+        },
+        {
+          "name": "array add rejects sparse indexes",
+          "ok": true
+        },
+        {
+          "name": "add fails when an intermediate parent path is missing",
+          "ok": false,
+          "message": "Missing expected exception (JsonPatchError)."
+        },
+        {
+          "name": "remove fails when an object key is missing",
+          "ok": false,
+          "message": "Missing expected exception (JsonPatchError)."
+        },
+        {
+          "name": "JSON Pointer escaping covers slash and tilde keys",
+          "ok": true
+        },
+        {
+          "name": "test uses structural equality independent of object key order",
+          "ok": true
+        },
+        {
+          "name": "move within the same array follows remove-then-add semantics",
+          "ok": true
+        },
+        {
+          "name": "copy creates an independent deep clone",
+          "ok": true
+        },
+        {
+          "name": "root add replaces the entire document without mutating original",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "json-patch-engine",
+    "runId": "json-patch-engine__pi__openrouter__xiaomi-mimo-v2-pro-high__a01",
+    "provider": "openrouter",
+    "model": "xiaomi/mimo-v2-pro",
+    "commit": "3a7c881",
+    "estimatedCost": 0.021896,
+    "durationMs": 58916,
+    "original": {
+      "status": "passed",
+      "passed": 5,
+      "expected": 8
+    },
+    "hidden": {
+      "passed": 9,
+      "total": 10,
+      "cases": [
+        {
+          "name": "replace must fail when object key is missing",
+          "ok": true
+        },
+        {
+          "name": "remove must fail when array index is out of range",
+          "ok": true
+        },
+        {
+          "name": "array add rejects sparse indexes",
+          "ok": false,
+          "message": "Missing expected exception (JsonPatchError)."
+        },
+        {
+          "name": "add fails when an intermediate parent path is missing",
+          "ok": true
+        },
+        {
+          "name": "remove fails when an object key is missing",
+          "ok": true
+        },
+        {
+          "name": "JSON Pointer escaping covers slash and tilde keys",
+          "ok": true
+        },
+        {
+          "name": "test uses structural equality independent of object key order",
+          "ok": true
+        },
+        {
+          "name": "move within the same array follows remove-then-add semantics",
+          "ok": true
+        },
+        {
+          "name": "copy creates an independent deep clone",
+          "ok": true
+        },
+        {
+          "name": "root add replaces the entire document without mutating original",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "json-patch-engine",
+    "runId": "json-patch-engine__pi__openrouter__z-ai-glm-5.1-high__a01",
+    "provider": "openrouter",
+    "model": "z-ai/glm-5.1",
+    "commit": "24bdb21",
+    "estimatedCost": 0.053963,
+    "durationMs": 119405,
+    "original": {
+      "status": "passed",
+      "passed": 5,
+      "expected": 8
+    },
+    "hidden": {
+      "passed": 10,
+      "total": 10,
+      "cases": [
+        {
+          "name": "replace must fail when object key is missing",
+          "ok": true
+        },
+        {
+          "name": "remove must fail when array index is out of range",
+          "ok": true
+        },
+        {
+          "name": "array add rejects sparse indexes",
+          "ok": true
+        },
+        {
+          "name": "add fails when an intermediate parent path is missing",
+          "ok": true
+        },
+        {
+          "name": "remove fails when an object key is missing",
+          "ok": true
+        },
+        {
+          "name": "JSON Pointer escaping covers slash and tilde keys",
+          "ok": true
+        },
+        {
+          "name": "test uses structural equality independent of object key order",
+          "ok": true
+        },
+        {
+          "name": "move within the same array follows remove-then-add semantics",
+          "ok": true
+        },
+        {
+          "name": "copy creates an independent deep clone",
+          "ok": true
+        },
+        {
+          "name": "root add replaces the entire document without mutating original",
+          "ok": true
+        }
+      ]
+    }
+  },
+  {
+    "taskId": "json-patch-engine",
+    "runId": "json-patch-engine__pi__openrouter__moonshotai-kimi-k2.6-high__a01",
+    "provider": "openrouter",
+    "model": "moonshotai/kimi-k2.6",
+    "commit": "3398123",
+    "estimatedCost": 0.096208,
+    "durationMs": 422299,
+    "original": {
+      "status": "passed",
+      "passed": 6,
+      "expected": 8
+    },
+    "hidden": {
+      "passed": 10,
+      "total": 10,
+      "cases": [
+        {
+          "name": "replace must fail when object key is missing",
+          "ok": true
+        },
+        {
+          "name": "remove must fail when array index is out of range",
+          "ok": true
+        },
+        {
+          "name": "array add rejects sparse indexes",
+          "ok": true
+        },
+        {
+          "name": "add fails when an intermediate parent path is missing",
+          "ok": true
+        },
+        {
+          "name": "remove fails when an object key is missing",
+          "ok": true
+        },
+        {
+          "name": "JSON Pointer escaping covers slash and tilde keys",
+          "ok": true
+        },
+        {
+          "name": "test uses structural equality independent of object key order",
+          "ok": true
+        },
+        {
+          "name": "move within the same array follows remove-then-add semantics",
+          "ok": true
+        },
+        {
+          "name": "copy creates an independent deep clone",
+          "ok": true
+        },
+        {
+          "name": "root add replaces the entire document without mutating original",
+          "ok": true
+        }
+      ]
+    }
+  }
+]
