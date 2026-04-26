@@ -51,6 +51,14 @@ test("supports test operation and fails loudly when values differ", () => {
 	assert.throws(() => applyPatch({ status: "ready" }, [{ op: "test", path: "/status", value: "done" }]), JsonPatchError);
 });
 
+test("supports JSON Pointer escaping", () => {
+	const input = { "a/b": { "c~d": 1 } };
+	const output = applyPatch(input, [
+		{ op: "replace", path: "/a~1b/c~0d", value: 2 },
+	]);
+	assert.deepEqual(output, { "a/b": { "c~d": 2 } });
+});
+
 test("is atomic when any operation fails", () => {
 	const input = { a: { b: 1 }, list: ["x"] };
 
