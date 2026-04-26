@@ -1,8 +1,8 @@
 export async function collectInCompletionOrder<T>(tasks: Array<() => Promise<T>>): Promise<T[]> {
-	const results: T[] = [];
+	const results: T[] = new Array(tasks.length);
 	await Promise.all(
-		tasks.map(async (task) => {
-			results.push(await task());
+		tasks.map(async (task, i) => {
+			results[i] = await task();
 		}),
 	);
 	return results;
