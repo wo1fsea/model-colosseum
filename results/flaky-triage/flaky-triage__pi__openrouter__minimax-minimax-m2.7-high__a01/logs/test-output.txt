@@ -1,0 +1,16 @@
+
+> flaky-triage-fixture@0.1.0 test
+> node --test
+
+✔ async batch preserves input order even when tasks complete out of order (21.51825ms)
+✔ UTC day bucketing is stable across local timezones (0.969875ms)
+✔ sessions do not share mutable role arrays (0.124542ms)
+✔ session factory remains isolated over repeated calls (0.113166ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165.978708

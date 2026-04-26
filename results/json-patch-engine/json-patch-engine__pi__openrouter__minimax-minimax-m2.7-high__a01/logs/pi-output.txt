@@ -1,0 +1,19 @@
+All 5 tests pass.
+
+## Summary
+
+**Plan:** Implemented RFC 6902 JSON Patch engine with all required operations (add, remove, replace, move, copy, test). Added JSON Pointer escaping support (`~0` for `~`, `~1` for `/`), array append with `-`, deep-copy semantics for copy/move, and atomic behavior.
+
+**Files changed:** `fixtures/json-patch-engine/src/index.ts`
+
+**Tests run:** `npm test` (5/5 passed)
+
+**Result:** All tests pass.
+
+**Risks:** None identified. Implementation correctly handles:
+- `add` inserts at array indices (not replaces)
+- `replace` fails if path doesn't exist
+- `move` removes from source before adding to destination
+- `copy` deep-copies the value
+- JSON Pointer escaping for `~0` and `~1`
+- No mutation of original document

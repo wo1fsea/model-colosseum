@@ -1,0 +1,20 @@
+All 4 tests pass.
+
+## Summary
+
+**Root causes and fixes:**
+
+1. **`asyncBatch.ts` — Completion order ≠ input order**: `results.push(await task())` inside `Promise.all` appends results in completion order, not input order. Faster tasks push first. **Fix:** Use indexed assignment (`results[i] = await task()`) to preserve input order.
+
+2. **`dateBucket.ts` — Local timezone instead of UTC**: `getFullYear()/getMonth()/getDate()` use the system's local timezone. A UTC midnight timestamp could bucket to the previous day in negative-offset timezones. **Fix:** Use `getUTCFullYear()/getUTCMonth()/getUTCDate()`.
+
+3. **`sessionStore.ts` — Shared mutable default object**: `Object.assign(defaultSession, overrides)` mutates the module-level `defaultSession` object, so the `roles` array reference leaks across all sessions. **Fix:** Create a fresh object with a new `roles` array on every `createSession()` call.
+
+**Files changed:**
+- `fixtures/flaky-triage/src/asyncBatch.ts`
+- `fixtures/flaky-triage/src/dateBucket.ts`
+- `fixtures/flaky-triage/src/sessionStore.ts`
+
+**Tests run:** `npm test` — 4/4 pass, 0 fail.
+
+**Remaining risks:** None. All fixes address the root cause without weakening assertions, deleting tests, or adding sleeps.

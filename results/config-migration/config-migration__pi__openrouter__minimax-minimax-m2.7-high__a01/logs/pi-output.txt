@@ -1,0 +1,36 @@
+---
+
+## Final Response
+
+### Plan Summary
+Migrate the config system from v1 to v2 while maintaining backward compatibility:
+- Add a `migrateToV2()` helper that converts v1 configs to v2 shape
+- Modify `loadConfig()` to auto-migrate v1 configs to v2 in memory
+- Modify `setEndpoint()` to return v2 shape for v1 input
+- Modify `saveConfig()` to always write v2 JSON (even when passed v1)
+- Add improved error handling for read failures and invalid JSON
+
+### Files Changed
+- `fixtures/config-migration/src/config.ts`
+
+### Tests Run
+```bash
+cd fixtures/config-migration && npm test
+```
+
+### Result
+All 5 tests pass:
+- ✔ loads v1 config and migrates it to v2 shape
+- ✔ loads v2 config and resolves active profile endpoint
+- ✔ setEndpoint preserves v2 profiles and updates only active profile
+- ✔ CLI stays backward compatible with v1 files and writes v2 files
+- ✔ damaged config fails with an actionable error and does not overwrite the file
+
+### Remaining Risks
+None - all requirements met:
+- v1 migration: ✅ (via `migrateToV2()` helper)
+- v2 profile behavior: ✅ (activeProfile + profiles structure)
+- CLI compatibility: ✅ (reads v1, writes v2)
+- Damaged file safety: ✅ (actionable errors, no overwrite)
+- No mutation on read-only load: ✅ (in-memory migration only)
+- Default timeout: ✅ (5000ms fallback)

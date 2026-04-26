@@ -1,0 +1,49 @@
+{
+  "task_id": "flaky-triage",
+  "run_id": "flaky-triage__pi__openrouter__moonshotai-kimi-k2.6-high__a01",
+  "branch": "runs/flaky-triage/pi-openrouter-moonshotai-kimi-k2.6-high/a01",
+  "commit": "3c5125698718ae0fb18ede59dd468611275cd838",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "moonshotai/kimi-k2.6",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:48:35.133Z",
+    "finished": "2026-04-26T17:49:15.812Z"
+  },
+  "tokens": {
+    "input": 4534,
+    "output": 1805,
+    "cache_read": 21760,
+    "cache_write": 0,
+    "total": 28099
+  },
+  "cost": {
+    "estimated_usd": 0.014963,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 42614
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/flaky-triage",
+      "status": "passed",
+      "passed": 4,
+      "expected": 5,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

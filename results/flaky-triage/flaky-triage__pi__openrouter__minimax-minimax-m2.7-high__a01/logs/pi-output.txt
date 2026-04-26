@@ -1,0 +1,24 @@
+---
+
+## Summary
+
+**Plan:**
+- Diagnose and fix 4 flaky tests with minimal changes addressing root causes: async ordering, UTC timezone bucketing, and shared mutable state.
+
+**Files changed:**
+- `fixtures/flaky-triage/src/asyncBatch.ts`
+- `fixtures/flaky-triage/src/dateBucket.ts`
+- `fixtures/flaky-triage/src/sessionStore.ts`
+
+**Tests run:** `npm test` (4/4 passed)
+
+**Root causes fixed:**
+
+| Test | Root Cause | Fix |
+|------|-----------|-----|
+| async batch | `Promise.all` completes tasks in completion order, but code pushed results as they arrived — breaking input order | Pre-allocate array by index, store results at their input index |
+| UTC day bucketing | Used `getDate()` (local timezone) instead of `getUTCDate()` — UTC midnight timestamps were incorrectly bucketed to next/prev local day | Switch to UTC date methods (`getUTCFullYear`, `getUTCMonth`, `getUTCDate`) |
+| session roles shared | `defaultSession` was a module-level singleton; `Object.assign` reused the same `roles` array reference across all calls | Create a fresh object literal per call instead of mutating shared default |
+| session isolation | Same as above — leaked roles array accumulated across iterations | Same fix as above |
+
+**No sleeps added, no assertions weakened.**

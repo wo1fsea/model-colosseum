@@ -1,0 +1,27 @@
+All 8 tests pass.
+
+## Summary
+
+**Plan Summary:**
+Migrated the config system from v1 to v2 with backward compatibility. The key changes ensure v1 configs are automatically migrated to v2 shape in memory, CLI commands remain compatible, and damaged JSON produces actionable errors without mutating files.
+
+**Files Changed:**
+- `fixtures/config-migration/src/config.ts` - Core config module with v1→v2 migration
+- `fixtures/config-migration/test/config.test.ts` - Added 3 new tests for edge cases
+
+**Key Implementation Details:**
+1. `loadConfig()` now detects v1 configs (has `endpoint` but no `profiles`) and migrates to v2 shape with `version: 2`, `activeProfile: "default"`, and `profiles.default`
+2. `setEndpoint()` migrates v1 to v2 before updating, returns immutable v2 config with only active profile modified
+3. Missing `timeoutMs` defaults to 30000ms
+4. Damaged JSON throws `"Invalid config JSON at \"<path>\": <error>. File may be damaged; please repair or restore from backup."`
+5. No runtime dependencies added; user files never mutated during read-only load
+
+**Tests Run:**
+```bash
+npm test
+# 8 tests, all passing
+```
+
+**Result:** ✅ All tests pass
+
+**Remaining Risks:** None - all requirements satisfied.

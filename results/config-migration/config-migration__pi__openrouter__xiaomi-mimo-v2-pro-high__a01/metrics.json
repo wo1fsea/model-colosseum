@@ -1,0 +1,49 @@
+{
+  "task_id": "config-migration",
+  "run_id": "config-migration__pi__openrouter__xiaomi-mimo-v2-pro-high__a01",
+  "branch": "runs/config-migration/pi-openrouter-xiaomi-mimo-v2-pro-high/a01",
+  "commit": "48206c2c460308c4dcae2c6eb7a576f8246b4a5e",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "xiaomi/mimo-v2-pro",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:41:18.339Z",
+    "finished": "2026-04-26T17:43:23.953Z"
+  },
+  "tokens": {
+    "input": 14570,
+    "output": 5503,
+    "cache_read": 92288,
+    "cache_write": 0,
+    "total": 112361
+  },
+  "cost": {
+    "estimated_usd": 0.049537,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 128078
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/config-migration",
+      "status": "passed",
+      "passed": 8,
+      "expected": 10,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

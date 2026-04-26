@@ -1,0 +1,49 @@
+{
+  "task_id": "json-patch-engine",
+  "run_id": "json-patch-engine__pi__openrouter__xiaomi-mimo-v2-pro-high__a01",
+  "branch": "runs/json-patch-engine/pi-openrouter-xiaomi-mimo-v2-pro-high/a01",
+  "commit": "3a7c8811e9894fa609c70a9a08e55b90773000b4",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "xiaomi/mimo-v2-pro",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:40:16.182Z",
+    "finished": "2026-04-26T17:41:10.548Z"
+  },
+  "tokens": {
+    "input": 8129,
+    "output": 3373,
+    "cache_read": 18240,
+    "cache_write": 0,
+    "total": 29742
+  },
+  "cost": {
+    "estimated_usd": 0.021896,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 58916
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/json-patch-engine",
+      "status": "passed",
+      "passed": 5,
+      "expected": 8,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

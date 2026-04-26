@@ -1,0 +1,21 @@
+## Plan
+
+- **`src/asyncBatch.ts`**: The function pushed results into a shared array as tasks completed, so output order matched completion order rather than input order. Replaced with `Promise.all(tasks.map(...))`, which Node resolves into input order.
+- **`src/dateBucket.ts`**: `Date.getFullYear/getMonth/getDate` use the runtime local timezone, causing inconsistent UTC-day bucketing. Switched to the UTC variants.
+- **`src/sessionStore.ts`**: `Object.assign(defaultSession, overrides)` mutated a module-level shared object, leaking state across calls. Replaced with object-spread and shallow-cloned the `roles` array so each call returns an independent session.
+
+## Tests run
+
+```bash
+cd fixtures/flaky-triage && npm test
+```
+
+All 4 tests passed.
+
+## Result
+
+- `asyncBatch.ts` – fixed completion-order flakiness by preserving input order via `Promise.all`.
+- `dateBucket.ts` – fixed timezone-dependent flakiness by using `getUTC*` methods.
+- `sessionStore.ts` – fixed shared-mutable-state flakiness by cloning the default session and its `roles` array on every `createSession` call.
+
+No remaining risks.

@@ -1,0 +1,171 @@
+diff --git a/fixtures/config-migration/src/config.ts b/fixtures/config-migration/src/config.ts
+index 63a3a18..3458ffd 100644
+--- a/fixtures/config-migration/src/config.ts
++++ b/fixtures/config-migration/src/config.ts
+@@ -22,28 +22,70 @@ export interface AppConfigV2 {
+ 
+ export type AppConfig = AppConfigV1 | AppConfigV2;
+ 
+-export async function loadConfig(path: string): Promise<AppConfig> {
+-	const raw = await readFile(path, "utf8");
+-	const parsed = JSON.parse(raw) as AppConfig;
+-	if ("profiles" in parsed) return parsed;
+-	return parsed;
++const DEFAULT_TIMEOUT_MS = 30000;
++
++function migrateV1toV2(v1: AppConfigV1): AppConfigV2 {
++	return {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: {
++				endpoint: v1.endpoint,
++				token: v1.token,
++				timeoutMs: v1.timeoutMs ?? DEFAULT_TIMEOUT_MS,
++			},
++		},
++	};
+ }
+ 
+-export async function saveConfig(path: string, config: AppConfig): Promise<void> {
+-	await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
++function isV2Config(parsed: unknown): parsed is AppConfigV2 {
++	return typeof parsed === "object" && parsed !== null && "profiles" in parsed;
+ }
+ 
+-export function getActiveEndpoint(config: AppConfig): string {
+-	if ("profiles" in config) {
+-		return config.profiles[config.activeProfile].endpoint;
++export async function loadConfig(path: string): Promise<AppConfigV2> {
++	let raw: string;
++	try {
++		raw = await readFile(path, "utf8");
++	} catch (err: any) {
++		throw new Error(`Cannot read config file "${path}": ${err.message}`);
++	}
++
++	let parsed: unknown;
++	try {
++		parsed = JSON.parse(raw);
++	} catch (err: any) {
++		throw new Error(`Invalid config JSON in "${path}": ${err.message}`);
++	}
++
++	if (isV2Config(parsed)) {
++		return parsed;
+ 	}
+-	return config.endpoint;
+-}
+ 
+-export function setEndpoint(config: AppConfig, endpoint: string): AppConfig {
+-	if ("profiles" in config) {
+-		config.profiles[config.activeProfile].endpoint = endpoint;
+-		return config;
++	// Treat as v1 config (may omit version field)
++	if (typeof parsed === "object" && parsed !== null && "endpoint" in parsed) {
++		return migrateV1toV2(parsed as AppConfigV1);
+ 	}
+-	return { ...config, endpoint };
++
++	throw new Error(`Invalid config in "${path}": missing "endpoint" or "profiles" field`);
++}
++
++export async function saveConfig(path: string, config: AppConfigV2): Promise<void> {
++	await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
++}
++
++export function getActiveEndpoint(config: AppConfigV2): string {
++	return config.profiles[config.activeProfile].endpoint;
++}
++
++export function setEndpoint(config: AppConfigV2, endpoint: string): AppConfigV2 {
++	return {
++		...config,
++		profiles: {
++			...config.profiles,
++			[config.activeProfile]: {
++				...config.profiles[config.activeProfile],
++				endpoint,
++			},
++		},
++	};
+ }
+diff --git a/fixtures/config-migration/test/config.test.ts b/fixtures/config-migration/test/config.test.ts
+index 11c8f1a..23262ac 100644
+--- a/fixtures/config-migration/test/config.test.ts
++++ b/fixtures/config-migration/test/config.test.ts
+@@ -95,3 +95,74 @@ test("damaged config fails with an actionable error and does not overwrite the f
+ 	await assert.rejects(() => loadConfig(file), /Invalid config JSON|Unexpected end/);
+ 	assert.equal(await readFile(file, "utf8"), '{"endpoint":');
+ });
++
++test("v1 config without timeoutMs gets default", async () => {
++	const file = await tempConfig({ endpoint: "http://localhost:4000" });
++	const config = await loadConfig(file);
++
++	assert.equal(config.version, 2);
++	assert.equal(config.profiles.default.timeoutMs, 30000);
++	assert.equal(config.profiles.default.endpoint, "http://localhost:4000");
++});
++
++test("v1 config with explicit version 1 migrates to v2", async () => {
++	const file = await tempConfig({ version: 1, endpoint: "https://v1.example.com", timeoutMs: 2000 });
++	const config = await loadConfig(file);
++
++	assert.equal(config.version, 2);
++	assert.equal(config.activeProfile, "default");
++	assert.equal(config.profiles.default.endpoint, "https://v1.example.com");
++	assert.equal(config.profiles.default.timeoutMs, 2000);
++});
++
++test("loadConfig does not mutate the on-disk file for v1 configs", async () => {
++	const file = await tempConfig({ endpoint: "https://readonly.example.com", token: "abc" });
++	const originalContent = await readFile(file, "utf8");
++
++	await loadConfig(file);
++
++	const afterContent = await readFile(file, "utf8");
++	assert.equal(afterContent, originalContent);
++});
++
++test("setEndpoint does not mutate the original config object", () => {
++	const original: import("../src/config.ts").AppConfigV2 = {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: { endpoint: "http://original", timeoutMs: 1000 },
++		},
++	};
++
++	const updated = setEndpoint(original, "http://updated");
++
++	// Original should be unchanged
++	assert.equal(original.profiles.default.endpoint, "http://original");
++	assert.equal(updated.profiles.default.endpoint, "http://updated");
++});
++
++test("CLI set-endpoint does not collapse v2 config back to v1", async () => {
++	const file = await tempConfig({
++		version: 2,
++		activeProfile: "prod",
++		profiles: {
++			default: { endpoint: "http://localhost:3000", timeoutMs: 1000 },
++			prod: { endpoint: "https://prod.example.com", timeoutMs: 8000 },
++		},
++	});
++
++	await execFileAsync(process.execPath, ["src/cli.ts", "set-endpoint", file, "https://new-prod.example.com"], {
++		cwd: new URL("..", import.meta.url),
++	});
++
++	const written = JSON.parse(await readFile(file, "utf8"));
++	assert.equal(written.version, 2);
++	assert.equal(written.activeProfile, "prod");
++	assert.equal(written.profiles.prod.endpoint, "https://new-prod.example.com");
++	assert.equal(written.profiles.default.endpoint, "http://localhost:3000");
++});
++
++test("config with neither endpoint nor profiles produces actionable error", async () => {
++	const file = await tempConfig({ foo: "bar" });
++	await assert.rejects(() => loadConfig(file), /Invalid config/);
++});

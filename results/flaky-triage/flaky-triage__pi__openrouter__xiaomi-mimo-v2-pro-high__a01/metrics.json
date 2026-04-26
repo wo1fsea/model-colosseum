@@ -1,0 +1,49 @@
+{
+  "task_id": "flaky-triage",
+  "run_id": "flaky-triage__pi__openrouter__xiaomi-mimo-v2-pro-high__a01",
+  "branch": "runs/flaky-triage/pi-openrouter-xiaomi-mimo-v2-pro-high/a01",
+  "commit": "3e392c65a1a3bd6081c3fbbc814a151c74207675",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "xiaomi/mimo-v2-pro",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:43:31.689Z",
+    "finished": "2026-04-26T17:44:28.900Z"
+  },
+  "tokens": {
+    "input": 6610,
+    "output": 2676,
+    "cache_read": 24320,
+    "cache_write": 0,
+    "total": 33606
+  },
+  "cost": {
+    "estimated_usd": 0.019502,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 60772
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/flaky-triage",
+      "status": "passed",
+      "passed": 4,
+      "expected": 5,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

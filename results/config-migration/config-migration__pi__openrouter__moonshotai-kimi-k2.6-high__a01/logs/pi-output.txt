@@ -1,0 +1,39 @@
+## Plan Summary
+
+- **Files changed:** `fixtures/config-migration/src/config.ts`
+- **Behavior changed:**
+  - `loadConfig` now returns `AppConfigV2` always. When loading a v1 file (detected by absence of `profiles`), it migrates in-memory to v2 with `activeProfile: "default"` and a sensible `timeoutMs` default of `5000`.
+  - `loadConfig` wraps JSON parse errors with an actionable message that includes the file path.
+  - `setEndpoint` is now purely immutable: it returns a new v2 object instead of mutating the active profile in place.
+  - `saveConfig` and `getActiveEndpoint` operate strictly on v2 shapes.
+- **Tests:** Existing tests cover all required behavior; no new tests were needed.
+- **Assumptions/Risks:** The migration heuristic relies on presence/absence of `profiles`. This matches the test expectations and v1/v2 interface definitions.
+
+## Files Changed
+
+- `fixtures/config-migration/src/config.ts`
+
+## Tests Run
+
+```bash
+cd fixtures/config-migration && npm test
+```
+
+- `loads v1 config and migrates it to v2 shape` — pass
+- `loads v2 config and resolves active profile endpoint` — pass
+- `setEndpoint preserves v2 profiles and updates only active profile` — pass
+- `CLI stays backward compatible with v1 files and writes v2 files` — pass
+- `damaged config fails with an actionable error and does not overwrite the file` — pass
+
+## Result
+
+All 5 tests pass. The implementation satisfies:
+- v1 configs load and are returned as v2 in memory without mutating disk.
+- v2 profiles with `activeProfile` work correctly.
+- `get-endpoint` and `set-endpoint` CLI commands remain compatible.
+- `set-endpoint` updates only the active v2 profile and writes v2 JSON.
+- Damaged JSON produces an actionable error (`Invalid config JSON in <path>: ...`) and the file is never overwritten on load.
+
+## Remaining Risks
+
+None identified.

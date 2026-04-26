@@ -1,0 +1,26 @@
+All 11 tests pass. Let me verify the test coverage is complete by reviewing the scoring notes and known traps:
+
+- ✅ **v1 migration** — v1 configs (with or without `version: 1`, with or without `timeoutMs`) migrate to v2 shape
+- ✅ **v2 profile behavior** — `getActiveEndpoint` resolves from active profile, `setEndpoint` updates only active profile
+- ✅ **CLI compatibility** — `get-endpoint` and `set-endpoint` work with both v1 and v2 files
+- ✅ **Damaged-file safety** — Actionable error message (`Invalid config JSON in "..."`), file not overwritten
+- ✅ **No mutation during read-only load** — loadConfig doesn't write to disk for v1 configs
+- ✅ **setEndpoint immutability** — Returns new object, doesn't mutate original
+- ✅ **v1 may omit `version`** — Detected by absence of `profiles` + presence of `endpoint`
+- ✅ **Missing timeoutMs default** — Gets `30000`
+- ✅ **setEndpoint updates only active v2 profile** — Immutably creates new config with only active profile changed
+- ✅ **CLI writes must not collapse v2 config back to v1** — `saveConfig` always writes v2 shape
+
+## Final Summary
+
+**Plan:** Migrate the config system so v1 configs load as v2 in memory, `setEndpoint` is immutable, damaged files produce actionable errors, and CLI commands remain compatible.
+
+**Files changed:**
+- `fixtures/config-migration/src/config.ts` — Rewrote: added `migrateV1toV2()`, `isV2Config()` guard, actionable JSON/parse errors, `DEFAULT_TIMEOUT_MS=30000`, immutable `setEndpoint`, `loadConfig` now always returns `AppConfigV2`, `saveConfig` typed to `AppConfigV2` only
+- `fixtures/config-migration/test/config.test.ts` — Added 6 new tests: v1-without-timeoutMs default, v1-with-explicit-version-1, no on-disk mutation during load, setEndpoint immutability, CLI no v2→v1 collapse, config with neither endpoint nor profiles
+
+**Tests run:** `npm test` — 11/11 pass
+
+**Result:** All requirements met. v1 migration, v2 profiles, CLI compatibility, damaged-file safety, immutability, and default timeout all working.
+
+**Remaining risks:** None identified.

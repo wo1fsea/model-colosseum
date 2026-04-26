@@ -1,0 +1,49 @@
+{
+  "task_id": "flaky-triage",
+  "run_id": "flaky-triage__pi__openrouter__z-ai-glm-5.1-high__a01",
+  "branch": "runs/flaky-triage/pi-openrouter-z-ai-glm-5.1-high/a01",
+  "commit": "b1ccde478fba561eb91d2283f7d0c33169d30b27",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.1",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:44:33.335Z",
+    "finished": "2026-04-26T17:45:19.504Z"
+  },
+  "tokens": {
+    "input": 4347,
+    "output": 2213,
+    "cache_read": 23232,
+    "cache_write": 0,
+    "total": 29792
+  },
+  "cost": {
+    "estimated_usd": 0.024507,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 49842
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/flaky-triage",
+      "status": "passed",
+      "passed": 4,
+      "expected": 5,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

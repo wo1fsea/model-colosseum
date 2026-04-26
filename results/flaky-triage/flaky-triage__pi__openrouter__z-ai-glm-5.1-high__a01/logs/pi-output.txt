@@ -1,0 +1,27 @@
+## Final Response
+
+### Plan Summary
+Diagnose and fix three root causes of flaky tests in the `flaky-triage` fixture.
+
+### Root Causes & Fixes
+
+| # | File | Root Cause | Fix |
+|---|------|-----------|-----|
+| 1 | `src/asyncBatch.ts` | **Async ordering**: `results.push(await task())` appends in completion order, not input order. When tasks resolve at different speeds, the output order is nondeterministic. | Use indexed assignment (`results[index] = await task()`) with a pre-sized array so `Promise.all` preserves input order. |
+| 2 | `src/dateBucket.ts` | **Timezone-dependent day bucketing**: `getFullYear()`, `getMonth()`, `getDate()` use local timezone. Timestamps near UTC midnight can shift to an adjacent local day. | Replace with `getUTCFullYear()`, `getUTCMonth()`, `getUTCDate()` for timezone-stable UTC day keys. |
+| 3 | `src/sessionStore.ts` | **Shared mutable state**: `Object.assign(defaultSession, overrides)` mutates the module-level `defaultSession` singleton. This leaks the `roles` array (and `id`) across all `createSession` calls, so adding a role to one session appears in all subsequent sessions. | Use spread + shallow clone: `{ ...defaultSession, roles: [...defaultSession.roles], ...overrides }` creates a fresh object with a new `roles` array each call. |
+
+### Files Changed
+- `fixtures/flaky-triage/src/asyncBatch.ts`
+- `fixtures/flaky-triage/src/dateBucket.ts`
+- `fixtures/flaky-triage/src/sessionStore.ts`
+
+### Tests Run
+- `npm test` — 4/4 pass (3 consecutive runs confirmed stable)
+
+### Result
+All tests pass. No tests deleted, no assertions weakened, no sleeps added.
+
+### Remaining Risks
+- `sessionStore.ts` still has a module-level `defaultSession` constant that is now unused at runtime (only used as a template). This is harmless but could be simplified in a future refactor.
+- `addRole` still mutates `session.roles` in place. This is fine as long as each session has its own array (guaranteed by the fix), but callers should be aware it's not a pure function.

@@ -1,0 +1,73 @@
+diff --git a/fixtures/config-migration/src/config.ts b/fixtures/config-migration/src/config.ts
+index 63a3a18..5ea40e3 100644
+--- a/fixtures/config-migration/src/config.ts
++++ b/fixtures/config-migration/src/config.ts
+@@ -22,28 +22,52 @@ export interface AppConfigV2 {
+ 
+ export type AppConfig = AppConfigV1 | AppConfigV2;
+ 
+-export async function loadConfig(path: string): Promise<AppConfig> {
++export async function loadConfig(path: string): Promise<AppConfigV2> {
+ 	const raw = await readFile(path, "utf8");
+-	const parsed = JSON.parse(raw) as AppConfig;
+-	if ("profiles" in parsed) return parsed;
+-	return parsed;
++	let parsed: unknown;
++	try {
++		parsed = JSON.parse(raw);
++	} catch (err) {
++		throw new Error(
++			`Invalid config JSON in ${path}: ${err instanceof Error ? err.message : String(err)}`
++		);
++	}
++
++	if (parsed && typeof parsed === "object" && "profiles" in parsed) {
++		return parsed as AppConfigV2;
++	}
++
++	const v1 = parsed as AppConfigV1;
++	return {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: {
++				endpoint: v1.endpoint,
++				token: v1.token,
++				timeoutMs: v1.timeoutMs ?? 5000,
++			},
++		},
++	};
+ }
+ 
+-export async function saveConfig(path: string, config: AppConfig): Promise<void> {
++export async function saveConfig(path: string, config: AppConfigV2): Promise<void> {
+ 	await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+ }
+ 
+-export function getActiveEndpoint(config: AppConfig): string {
+-	if ("profiles" in config) {
+-		return config.profiles[config.activeProfile].endpoint;
+-	}
+-	return config.endpoint;
++export function getActiveEndpoint(config: AppConfigV2): string {
++	return config.profiles[config.activeProfile].endpoint;
+ }
+ 
+-export function setEndpoint(config: AppConfig, endpoint: string): AppConfig {
+-	if ("profiles" in config) {
+-		config.profiles[config.activeProfile].endpoint = endpoint;
+-		return config;
+-	}
+-	return { ...config, endpoint };
++export function setEndpoint(config: AppConfigV2, endpoint: string): AppConfigV2 {
++	return {
++		...config,
++		profiles: {
++			...config.profiles,
++			[config.activeProfile]: {
++				...config.profiles[config.activeProfile],
++				endpoint,
++			},
++		},
++	};
+ }

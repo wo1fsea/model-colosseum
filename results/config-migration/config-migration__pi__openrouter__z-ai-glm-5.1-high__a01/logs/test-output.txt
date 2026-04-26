@@ -1,0 +1,23 @@
+
+> config-migration-fixture@0.1.0 test
+> node --test
+
+✔ loads v1 config and migrates it to v2 shape (5.016959ms)
+✔ loads v2 config and resolves active profile endpoint (0.659125ms)
+✔ setEndpoint preserves v2 profiles and updates only active profile (0.183625ms)
+✔ CLI stays backward compatible with v1 files and writes v2 files (201.925334ms)
+✔ damaged config fails with an actionable error and does not overwrite the file (2.510084ms)
+✔ v1 config without timeoutMs gets default (0.646834ms)
+✔ v1 config with explicit version 1 migrates to v2 (0.5925ms)
+✔ loadConfig does not mutate the on-disk file for v1 configs (0.777667ms)
+✔ setEndpoint does not mutate the original config object (0.086583ms)
+✔ CLI set-endpoint does not collapse v2 config back to v1 (100.456917ms)
+✔ config with neither endpoint nor profiles produces actionable error (1.028459ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 446.016917

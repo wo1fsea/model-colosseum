@@ -1,0 +1,51 @@
+diff --git a/fixtures/flaky-triage/src/asyncBatch.ts b/fixtures/flaky-triage/src/asyncBatch.ts
+index 3eb220c..577a05d 100644
+--- a/fixtures/flaky-triage/src/asyncBatch.ts
++++ b/fixtures/flaky-triage/src/asyncBatch.ts
+@@ -1,8 +1,8 @@
+ export async function collectInCompletionOrder<T>(tasks: Array<() => Promise<T>>): Promise<T[]> {
+-	const results: T[] = [];
++	const results: T[] = new Array(tasks.length);
+ 	await Promise.all(
+-		tasks.map(async (task) => {
+-			results.push(await task());
++		tasks.map(async (task, i) => {
++			results[i] = await task();
+ 		}),
+ 	);
+ 	return results;
+diff --git a/fixtures/flaky-triage/src/dateBucket.ts b/fixtures/flaky-triage/src/dateBucket.ts
+index e01f54b..13da3c4 100644
+--- a/fixtures/flaky-triage/src/dateBucket.ts
++++ b/fixtures/flaky-triage/src/dateBucket.ts
+@@ -2,7 +2,7 @@ export function bucketByUtcDay(isoTimestamps: string[]): Record<string, number>
+ 	const buckets: Record<string, number> = {};
+ 	for (const timestamp of isoTimestamps) {
+ 		const date = new Date(timestamp);
+-		const key = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
++		const key = `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+ 		buckets[key] = (buckets[key] ?? 0) + 1;
+ 	}
+ 	return buckets;
+diff --git a/fixtures/flaky-triage/src/sessionStore.ts b/fixtures/flaky-triage/src/sessionStore.ts
+index 5d2f905..f0ba904 100644
+--- a/fixtures/flaky-triage/src/sessionStore.ts
++++ b/fixtures/flaky-triage/src/sessionStore.ts
+@@ -3,13 +3,11 @@ interface Session {
+ 	roles: string[];
+ }
+ 
+-const defaultSession: Session = {
+-	id: "anonymous",
+-	roles: [],
+-};
+-
+ export function createSession(overrides: Partial<Session> = {}): Session {
+-	return Object.assign(defaultSession, overrides);
++	return {
++		id: overrides.id ?? "anonymous",
++		roles: overrides.roles ? [...overrides.roles] : [],
++	};
+ }
+ 
+ export function addRole(session: Session, role: string): Session {

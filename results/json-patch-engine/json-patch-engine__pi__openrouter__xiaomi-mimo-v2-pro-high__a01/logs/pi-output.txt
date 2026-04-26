@@ -1,0 +1,27 @@
+All 5 tests pass. Here's the summary:
+
+## Plan Summary
+Implement a complete RFC 6902 JSON Patch engine supporting all six operations (add, remove, replace, move, copy, test) with nested object/array paths, JSON Pointer escaping (~0/~1), array append with "-", and non-mutation of the original document.
+
+## Files Changed
+- **`fixtures/json-patch-engine/src/index.ts`** — Complete rewrite implementing all RFC 6902 operations:
+  - `add` — Sets object keys or inserts into arrays (including append with "-")
+  - `remove` — Deletes object keys or splices array elements
+  - `replace` — Overwrites existing values (fails if path missing)
+  - `move` — Removes from source, then adds to destination
+  - `copy` — Deep-copies source value to destination
+  - `test` — Validates value equality, throws `JsonPatchError` on mismatch
+  - Full JSON Pointer escaping (~0 → ~, ~1 → /)
+  - All operations work on cloned data to prevent mutation
+
+## Tests Run
+```
+npm test
+```
+Result: **5/5 passed**
+
+## Result
+All fixture tests pass. The implementation correctly handles nested paths, array insert/append, deep copy for `copy`, atomic failure, and non-mutation of inputs.
+
+## Remaining Risks
+None — all required operations and edge cases are covered.

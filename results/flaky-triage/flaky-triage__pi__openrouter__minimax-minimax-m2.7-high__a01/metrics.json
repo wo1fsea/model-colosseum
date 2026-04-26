@@ -1,0 +1,49 @@
+{
+  "task_id": "flaky-triage",
+  "run_id": "flaky-triage__pi__openrouter__minimax-minimax-m2.7-high__a01",
+  "branch": "runs/flaky-triage/pi-openrouter-minimax-minimax-m2.7-high/a01",
+  "commit": "477a989a14bdfdc1804ca2982bdeb0cf9e32c5bf",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "minimax/minimax-m2.7",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:44:24.086Z",
+    "finished": "2026-04-26T17:45:17.573Z"
+  },
+  "tokens": {
+    "input": 12569,
+    "output": 2240,
+    "cache_read": 35872,
+    "cache_write": 0,
+    "total": 50681
+  },
+  "cost": {
+    "estimated_usd": 0.008575,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 57654
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/flaky-triage",
+      "status": "passed",
+      "passed": 4,
+      "expected": 5,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "task_id": "config-migration",
+  "run_id": "config-migration__pi__openrouter__minimax-minimax-m2.7-high__a01",
+  "branch": "runs/config-migration/pi-openrouter-minimax-minimax-m2.7-high/a01",
+  "commit": "edea48107354a874e84a0d10e723c713951292ae",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "minimax/minimax-m2.7",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:43:15.131Z",
+    "finished": "2026-04-26T17:44:16.787Z"
+  },
+  "tokens": {
+    "input": 15081,
+    "output": 2419,
+    "cache_read": 20928,
+    "cache_write": 0,
+    "total": 38428
+  },
+  "cost": {
+    "estimated_usd": 0.008662,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 73761
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/config-migration",
+      "status": "passed",
+      "passed": 5,
+      "expected": 10,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "task_id": "json-patch-engine",
+  "run_id": "json-patch-engine__pi__openrouter__moonshotai-kimi-k2.6-high__a01",
+  "branch": "runs/json-patch-engine/pi-openrouter-moonshotai-kimi-k2.6-high/a01",
+  "commit": "339812336484a2631401d434ff1e1e3816e233b7",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "moonshotai/kimi-k2.6",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:40:13.976Z",
+    "finished": "2026-04-26T17:47:16.182Z"
+  },
+  "tokens": {
+    "input": 10743,
+    "output": 16650,
+    "cache_read": 73145,
+    "cache_write": 0,
+    "total": 100538
+  },
+  "cost": {
+    "estimated_usd": 0.096208,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 422299
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/json-patch-engine",
+      "status": "passed",
+      "passed": 6,
+      "expected": 8,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

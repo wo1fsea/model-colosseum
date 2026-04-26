@@ -1,0 +1,17 @@
+
+> json-patch-engine-fixture@0.1.0 test
+> node --test
+
+✔ adds and replaces nested object values without mutating the original (2.058667ms)
+✔ supports array insert, append, remove, and replace (0.256458ms)
+✔ supports copy and move with deep-copy behavior (0.189542ms)
+✔ supports test operation and fails loudly when values differ (0.283584ms)
+✔ is atomic when any operation fails (0.187042ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 151.652583

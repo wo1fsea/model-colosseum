@@ -1,0 +1,49 @@
+{
+  "task_id": "config-migration",
+  "run_id": "config-migration__pi__openrouter__z-ai-glm-5.1-high__a01",
+  "branch": "runs/config-migration/pi-openrouter-z-ai-glm-5.1-high/a01",
+  "commit": "0c735405094dfa53b0afc83250f36a50f090e1a2",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.1",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:42:15.740Z",
+    "finished": "2026-04-26T17:44:26.549Z"
+  },
+  "tokens": {
+    "input": 8798,
+    "output": 3724,
+    "cache_read": 23808,
+    "cache_write": 0,
+    "total": 36330
+  },
+  "cost": {
+    "estimated_usd": 0.034771,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 130461
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/config-migration",
+      "status": "passed",
+      "passed": 11,
+      "expected": 10,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

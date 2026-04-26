@@ -1,0 +1,255 @@
+diff --git a/fixtures/json-patch-engine/src/index.ts b/fixtures/json-patch-engine/src/index.ts
+index d7abf8a..0167a7a 100644
+--- a/fixtures/json-patch-engine/src/index.ts
++++ b/fixtures/json-patch-engine/src/index.ts
+@@ -26,42 +26,230 @@ export function applyPatch<T extends JsonValue>(document: T, operations: JsonPat
+ function applyOperation(document: JsonValue, operation: JsonPatchOperation): JsonValue {
+ 	switch (operation.op) {
+ 		case "add":
+-			return setAtPath(document, operation.path, operation.value);
++			return addOp(document, operation.path, operation.value);
++		case "remove":
++			return removeOp(document, operation.path);
+ 		case "replace":
+-			return setAtPath(document, operation.path, operation.value);
++			return replaceOp(document, operation.path, operation.value);
++		case "move":
++			return moveOp(document, operation.from, operation.path);
++		case "copy":
++			return copyOp(document, operation.from, operation.path);
++		case "test":
++			return testOp(document, operation.path, operation.value);
+ 		default:
+-			throw new JsonPatchError(`Unsupported operation: ${operation.op}`);
++			throw new JsonPatchError(`Unsupported operation: ${(operation as JsonPatchOperation).op}`);
+ 	}
+ }
+ 
+-function setAtPath(document: JsonValue, path: string, value: JsonValue): JsonValue {
+-	if (path === "") return clone(value);
++// Parse a JSON Pointer into an array of unescaped tokens
++function parsePointer(path: string): string[] {
++	if (path === "") return [];
++	if (!path.startsWith("/")) throw new JsonPatchError(`Invalid JSON pointer: ${path}`);
++	return path
++		.slice(1)
++		.split("/")
++		.map((part) => part.replace(/~1/g, "/").replace(/~0/g, "~"));
++}
++
++// Get a value at a given JSON Pointer path, throwing if any segment is missing
++function getValue(document: JsonValue, path: string): JsonValue {
+ 	const parts = parsePointer(path);
+-	const root = clone(document);
+-	let target: JsonValue = root;
++	let current: JsonValue = document;
++	for (const part of parts) {
++		if (current === null || typeof current !== "object") {
++			throw new JsonPatchError(`Cannot index into non-container at ${part}`);
++		}
++		if (Array.isArray(current)) {
++			if (part === "-") throw new JsonPatchError(`Cannot reference "-" for retrieval`);
++			const idx = parseIndex(part, current.length);
++			if (idx >= current.length) throw new JsonPatchError(`Index out of bounds: ${part}`);
++			current = current[idx];
++		} else {
++			if (!(part in (current as Record<string, JsonValue>))) {
++				throw new JsonPatchError(`Path not found: ${part}`);
++			}
++			current = (current as Record<string, JsonValue>)[part];
++		}
++	}
++	return current;
++}
++
++function parseIndex(key: string, length: number): number {
++	if (!/^\d+$/.test(key)) throw new JsonPatchError(`Invalid array index: ${key}`);
++	return parseInt(key, 10);
++}
+ 
++// add operation: add to object (set key) or insert into array (at index or append with "-")
++function addOp(document: JsonValue, path: string, value: JsonValue): JsonValue {
++	const parts = parsePointer(path);
++	if (parts.length === 0) return clone(value);
++	return addAt(document, parts, value);
++}
++
++function addAt(document: JsonValue, parts: string[], value: JsonValue): JsonValue {
++	const root = clone(document);
++	let current: JsonValue = root;
++	// Walk to parent
+ 	for (let i = 0; i < parts.length - 1; i++) {
+-		if (target === null || typeof target !== "object") {
+-			throw new JsonPatchError(`Cannot traverse through non-container at ${parts.slice(0, i + 1).join("/")}`);
++		if (current === null || typeof current !== "object") {
++			throw new JsonPatchError(`Cannot traverse through non-container`);
++		}
++		if (Array.isArray(current)) {
++			const idx = parseIndex(parts[i], current.length);
++			if (idx >= current.length) throw new JsonPatchError(`Index out of bounds`);
++			current = current[idx];
++		} else {
++			if (!(parts[i] in (current as Record<string, JsonValue>))) {
++				throw new JsonPatchError(`Path not found: ${parts[i]}`);
++			}
++			current = (current as Record<string, JsonValue>)[parts[i]];
++		}
++	}
++	const key = parts[parts.length - 1];
++	if (current === null || typeof current !== "object") {
++		throw new JsonPatchError(`Cannot add to non-container`);
++	}
++	if (Array.isArray(current)) {
++		if (key === "-") {
++			current.push(clone(value));
++		} else {
++			const idx = parseIndex(key, current.length);
++			// Insert at index (not replace)
++			current.splice(idx, 0, clone(value));
+ 		}
+-		target = (target as Record<string, JsonValue>)[parts[i]];
++	} else {
++		(current as Record<string, JsonValue>)[key] = clone(value);
+ 	}
++	return root;
++}
+ 
+-	const key = parts.at(-1);
+-	if (key === undefined || target === null || typeof target !== "object" || Array.isArray(target)) {
+-		throw new JsonPatchError(`Invalid object path: ${path}`);
++// remove operation: remove key from object or index from array
++function removeOp(document: JsonValue, path: string): JsonValue {
++	const parts = parsePointer(path);
++	if (parts.length === 0) throw new JsonPatchError(`Cannot remove root`);
++	const root = clone(document);
++	let current: JsonValue = root;
++	// Walk to parent
++	for (let i = 0; i < parts.length - 1; i++) {
++		if (current === null || typeof current !== "object") {
++			throw new JsonPatchError(`Cannot traverse through non-container`);
++		}
++		if (Array.isArray(current)) {
++			const idx = parseIndex(parts[i], current.length);
++			if (idx >= current.length) throw new JsonPatchError(`Index out of bounds`);
++			current = current[idx];
++		} else {
++			if (!(parts[i] in (current as Record<string, JsonValue>))) {
++				throw new JsonPatchError(`Path not found: ${parts[i]}`);
++			}
++			current = (current as Record<string, JsonValue>)[parts[i]];
++		}
+ 	}
++	const key = parts[parts.length - 1];
++	if (current === null || typeof current !== "object") {
++		throw new JsonPatchError(`Cannot remove from non-container`);
++	}
++	if (Array.isArray(current)) {
++		const idx = parseIndex(key, current.length);
++		if (idx >= current.length) throw new JsonPatchError(`Index out of bounds`);
++		current.splice(idx, 1);
++	} else {
++		if (!(key in (current as Record<string, JsonValue>))) {
++			throw new JsonPatchError(`Path not found: ${key}`);
++		}
++		delete (current as Record<string, JsonValue>)[key];
++	}
++	return root;
++}
+ 
+-	(target as Record<string, JsonValue>)[key] = clone(value);
++// replace operation: replace value at path (must exist)
++function replaceOp(document: JsonValue, path: string, value: JsonValue): JsonValue {
++	const parts = parsePointer(path);
++	if (parts.length === 0) return clone(value);
++	const root = clone(document);
++	let current: JsonValue = root;
++	// Walk to parent
++	for (let i = 0; i < parts.length - 1; i++) {
++		if (current === null || typeof current !== "object") {
++			throw new JsonPatchError(`Cannot traverse through non-container`);
++		}
++		if (Array.isArray(current)) {
++			const idx = parseIndex(parts[i], current.length);
++			if (idx >= current.length) throw new JsonPatchError(`Index out of bounds`);
++			current = current[idx];
++		} else {
++			if (!(parts[i] in (current as Record<string, JsonValue>))) {
++				throw new JsonPatchError(`Path not found: ${parts[i]}`);
++			}
++			current = (current as Record<string, JsonValue>)[parts[i]];
++		}
++	}
++	const key = parts[parts.length - 1];
++	if (current === null || typeof current !== "object") {
++		throw new JsonPatchError(`Cannot replace in non-container`);
++	}
++	if (Array.isArray(current)) {
++		const idx = parseIndex(key, current.length);
++		if (idx >= current.length) throw new JsonPatchError(`Index out of bounds`);
++		current[idx] = clone(value);
++	} else {
++		if (!(key in (current as Record<string, JsonValue>))) {
++			throw new JsonPatchError(`Path not found: ${key}`);
++		}
++		(current as Record<string, JsonValue>)[key] = clone(value);
++	}
+ 	return root;
+ }
+ 
+-function parsePointer(path: string): string[] {
+-	if (!path.startsWith("/")) throw new JsonPatchError(`Invalid JSON pointer: ${path}`);
+-	return path
+-		.slice(1)
+-		.split("/")
+-		.map((part) => part.replace(/~1/g, "/").replace(/~0/g, "~"));
++// move operation: remove from source, then add to destination
++function moveOp(document: JsonValue, from: string, to: string): JsonValue {
++	const value = getValue(document, from);
++	// Remove first, then add
++	let result = removeOp(document, from);
++	// Re-resolve value because we deep-clone in removeOp
++	result = addOp(result, to, value);
++	return result;
++}
++
++// copy operation: deep-copy value from source to destination
++function copyOp(document: JsonValue, from: string, to: string): JsonValue {
++	const value = getValue(document, from);
++	return addOp(document, to, value);
++}
++
++// test operation: check that value at path equals expected value
++function testOp(document: JsonValue, path: string, value: JsonValue): JsonValue {
++	const actual = getValue(document, path);
++	if (!deepEqual(actual, value)) {
++		throw new JsonPatchError(`Test failed: values are not equal`);
++	}
++	return clone(document);
++}
++
++function deepEqual(a: JsonValue, b: JsonValue): boolean {
++	if (a === b) return true;
++	if (a === null || b === null) return false;
++	if (typeof a !== typeof b) return false;
++	if (typeof a !== "object") return false;
++	if (Array.isArray(a) !== Array.isArray(b)) return false;
++	if (Array.isArray(a) && Array.isArray(b)) {
++		if (a.length !== b.length) return false;
++		for (let i = 0; i < a.length; i++) {
++			if (!deepEqual(a[i], b[i])) return false;
++		}
++		return true;
++	}
++	const objA = a as Record<string, JsonValue>;
++	const objB = b as Record<string, JsonValue>;
++	const keysA = Object.keys(objA);
++	const keysB = Object.keys(objB);
++	if (keysA.length !== keysB.length) return false;
++	for (const key of keysA) {
++		if (!(key in objB)) return false;
++		if (!deepEqual(objA[key], objB[key])) return false;
++	}
++	return true;
+ }
+ 
+ function clone<T extends JsonValue>(value: T): T {
