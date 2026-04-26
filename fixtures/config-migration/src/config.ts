@@ -22,28 +22,70 @@ export interface AppConfigV2 {
 
 export type AppConfig = AppConfigV1 | AppConfigV2;
 
-export async function loadConfig(path: string): Promise<AppConfig> {
-	const raw = await readFile(path, "utf8");
-	const parsed = JSON.parse(raw) as AppConfig;
-	if ("profiles" in parsed) return parsed;
-	return parsed;
+const DEFAULT_TIMEOUT_MS = 30000;
+
+function migrateV1toV2(v1: AppConfigV1): AppConfigV2 {
+	return {
+		version: 2,
+		activeProfile: "default",
+		profiles: {
+			default: {
+				endpoint: v1.endpoint,
+				token: v1.token,
+				timeoutMs: v1.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+			},
+		},
+	};
 }
 
-export async function saveConfig(path: string, config: AppConfig): Promise<void> {
+function isV2Config(parsed: unknown): parsed is AppConfigV2 {
+	return typeof parsed === "object" && parsed !== null && "profiles" in parsed;
+}
+
+export async function loadConfig(path: string): Promise<AppConfigV2> {
+	let raw: string;
+	try {
+		raw = await readFile(path, "utf8");
+	} catch (err: any) {
+		throw new Error(`Cannot read config file "${path}": ${err.message}`);
+	}
+
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(raw);
+	} catch (err: any) {
+		throw new Error(`Invalid config JSON in "${path}": ${err.message}`);
+	}
+
+	if (isV2Config(parsed)) {
+		return parsed;
+	}
+
+	// Treat as v1 config (may omit version field)
+	if (typeof parsed === "object" && parsed !== null && "endpoint" in parsed) {
+		return migrateV1toV2(parsed as AppConfigV1);
+	}
+
+	throw new Error(`Invalid config in "${path}": missing "endpoint" or "profiles" field`);
+}
+
+export async function saveConfig(path: string, config: AppConfigV2): Promise<void> {
 	await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
 }
 
-export function getActiveEndpoint(config: AppConfig): string {
-	if ("profiles" in config) {
-		return config.profiles[config.activeProfile].endpoint;
-	}
-	return config.endpoint;
+export function getActiveEndpoint(config: AppConfigV2): string {
+	return config.profiles[config.activeProfile].endpoint;
 }
 
-export function setEndpoint(config: AppConfig, endpoint: string): AppConfig {
-	if ("profiles" in config) {
-		config.profiles[config.activeProfile].endpoint = endpoint;
-		return config;
-	}
-	return { ...config, endpoint };
+export function setEndpoint(config: AppConfigV2, endpoint: string): AppConfigV2 {
+	return {
+		...config,
+		profiles: {
+			...config.profiles,
+			[config.activeProfile]: {
+				...config.profiles[config.activeProfile],
+				endpoint,
+			},
+		},
+	};
 }
