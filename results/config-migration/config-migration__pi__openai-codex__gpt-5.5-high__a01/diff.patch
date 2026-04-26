@@ -1,0 +1,268 @@
+diff --git a/fixtures/config-migration/src/config.ts b/fixtures/config-migration/src/config.ts
+index 63a3a18..cedd184 100644
+--- a/fixtures/config-migration/src/config.ts
++++ b/fixtures/config-migration/src/config.ts
+@@ -1,5 +1,7 @@
+ import { readFile, writeFile } from "node:fs/promises";
+ 
++export const DEFAULT_TIMEOUT_MS = 30_000;
++
+ export interface AppConfigV1 {
+ 	version?: 1;
+ 	endpoint: string;
+@@ -22,28 +24,138 @@ export interface AppConfigV2 {
+ 
+ export type AppConfig = AppConfigV1 | AppConfigV2;
+ 
+-export async function loadConfig(path: string): Promise<AppConfig> {
++type ProfileConfig = AppConfigV2["profiles"][string];
++
++export async function loadConfig(path: string): Promise<AppConfigV2> {
+ 	const raw = await readFile(path, "utf8");
+-	const parsed = JSON.parse(raw) as AppConfig;
+-	if ("profiles" in parsed) return parsed;
+-	return parsed;
++	let parsed: unknown;
++	try {
++		parsed = JSON.parse(raw);
++	} catch (error) {
++		const detail = error instanceof Error ? error.message : String(error);
++		throw new Error(`Invalid config JSON at ${path}: ${detail}. Fix the damaged config file before retrying; it was not overwritten.`);
++	}
++
++	return normalizeConfig(parsed, path);
+ }
+ 
+ export async function saveConfig(path: string, config: AppConfig): Promise<void> {
+-	await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
++	const normalized = normalizeConfig(config, path);
++	await writeFile(path, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
+ }
+ 
+ export function getActiveEndpoint(config: AppConfig): string {
+-	if ("profiles" in config) {
+-		return config.profiles[config.activeProfile].endpoint;
++	const normalized = normalizeConfig(config, "config");
++	return normalized.profiles[normalized.activeProfile].endpoint;
++}
++
++export function setEndpoint(config: AppConfig, endpoint: string): AppConfigV2 {
++	if (typeof endpoint !== "string") {
++		throw new Error("Invalid endpoint: endpoint must be a string.");
++	}
++
++	const normalized = normalizeConfig(config, "config");
++	return {
++		...normalized,
++		profiles: {
++			...normalized.profiles,
++			[normalized.activeProfile]: {
++				...normalized.profiles[normalized.activeProfile],
++				endpoint,
++			},
++		},
++	};
++}
++
++function normalizeConfig(value: unknown, source: string): AppConfigV2 {
++	if (!isRecord(value)) {
++		throw invalidConfig(source, "config must be a JSON object");
+ 	}
+-	return config.endpoint;
++
++	if (value.version === 2 || "profiles" in value || "activeProfile" in value) {
++		return normalizeV2Config(value, source);
++	}
++
++	return migrateV1Config(value, source);
++}
++
++function migrateV1Config(value: Record<string, unknown>, source: string): AppConfigV2 {
++	if ("version" in value && value.version !== undefined && value.version !== 1) {
++		throw invalidConfig(source, "unsupported config version; expected version 1 or 2");
++	}
++
++	return {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: normalizeProfile(value, source, "default profile"),
++		},
++	};
+ }
+ 
+-export function setEndpoint(config: AppConfig, endpoint: string): AppConfig {
+-	if ("profiles" in config) {
+-		config.profiles[config.activeProfile].endpoint = endpoint;
+-		return config;
++function normalizeV2Config(value: Record<string, unknown>, source: string): AppConfigV2 {
++	if (value.version !== 2) {
++		throw invalidConfig(source, "v2 config must include version: 2");
++	}
++	if (typeof value.activeProfile !== "string" || value.activeProfile.length === 0) {
++		throw invalidConfig(source, "activeProfile must be a non-empty string");
+ 	}
+-	return { ...config, endpoint };
++	if (!isRecord(value.profiles)) {
++		throw invalidConfig(source, "profiles must be an object keyed by profile name");
++	}
++
++	const profiles: AppConfigV2["profiles"] = {};
++	for (const [name, profile] of Object.entries(value.profiles)) {
++		if (name.length === 0) {
++			throw invalidConfig(source, "profile names must be non-empty strings");
++		}
++		profiles[name] = normalizeProfile(profile, source, `profiles.${name}`);
++	}
++
++	if (Object.keys(profiles).length === 0) {
++		throw invalidConfig(source, "profiles must include at least one profile");
++	}
++	if (!(value.activeProfile in profiles)) {
++		throw invalidConfig(source, `activeProfile '${value.activeProfile}' does not exist in profiles`);
++	}
++
++	return {
++		version: 2,
++		activeProfile: value.activeProfile,
++		profiles,
++	};
++}
++
++function normalizeProfile(value: unknown, source: string, label: string): ProfileConfig {
++	if (!isRecord(value)) {
++		throw invalidConfig(source, `${label} must be an object`);
++	}
++	if (typeof value.endpoint !== "string") {
++		throw invalidConfig(source, `${label}.endpoint must be a string`);
++	}
++	if ("token" in value && value.token !== undefined && typeof value.token !== "string") {
++		throw invalidConfig(source, `${label}.token must be a string when provided`);
++	}
++
++	return {
++		endpoint: value.endpoint,
++		...(value.token === undefined ? {} : { token: value.token }),
++		timeoutMs: normalizeTimeout(value.timeoutMs, source, `${label}.timeoutMs`),
++	};
++}
++
++function normalizeTimeout(value: unknown, source: string, label: string): number {
++	if (value === undefined) return DEFAULT_TIMEOUT_MS;
++	if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
++		throw invalidConfig(source, `${label} must be a non-negative number when provided`);
++	}
++	return value;
++}
++
++function isRecord(value: unknown): value is Record<string, unknown> {
++	return typeof value === "object" && value !== null && !Array.isArray(value);
++}
++
++function invalidConfig(source: string, detail: string): Error {
++	return new Error(`Invalid config at ${source}: ${detail}. Fix the damaged config file before retrying; it was not overwritten.`);
+ }
+diff --git a/fixtures/config-migration/test/config.test.ts b/fixtures/config-migration/test/config.test.ts
+index 11c8f1a..7a92ec7 100644
+--- a/fixtures/config-migration/test/config.test.ts
++++ b/fixtures/config-migration/test/config.test.ts
+@@ -5,7 +5,7 @@ import { join } from "node:path";
+ import { execFile } from "node:child_process";
+ import { promisify } from "node:util";
+ import test from "node:test";
+-import { getActiveEndpoint, loadConfig, setEndpoint } from "../src/config.ts";
++import { DEFAULT_TIMEOUT_MS, getActiveEndpoint, loadConfig, saveConfig, setEndpoint } from "../src/config.ts";
+ 
+ const execFileAsync = promisify(execFile);
+ 
+@@ -33,6 +33,53 @@ test("loads v1 config and migrates it to v2 shape", async () => {
+ 	});
+ });
+ 
++test("loads v1 config without version or timeout and applies defaults", async () => {
++	const file = await tempConfig({ endpoint: "https://api.example.com" });
++	const config = await loadConfig(file);
++
++	assert.deepEqual(config, {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: {
++				endpoint: "https://api.example.com",
++				timeoutMs: DEFAULT_TIMEOUT_MS,
++			},
++		},
++	});
++});
++
++test("saveConfig writes v2 JSON when given a v1 config", async () => {
++	const file = await tempConfig({ endpoint: "http://old", timeoutMs: 1000 });
++
++	await saveConfig(file, { endpoint: "http://new" });
++
++	const written = JSON.parse(await readFile(file, "utf8"));
++	assert.deepEqual(written, {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: {
++				endpoint: "http://new",
++				timeoutMs: DEFAULT_TIMEOUT_MS,
++			},
++		},
++	});
++});
++
++test("setEndpoint migrates v1 configs before updating", () => {
++	assert.deepEqual(setEndpoint({ endpoint: "http://old", timeoutMs: 1000 }, "http://new"), {
++		version: 2,
++		activeProfile: "default",
++		profiles: {
++			default: {
++				endpoint: "http://new",
++				timeoutMs: 1000,
++			},
++		},
++	});
++});
++
+ test("loads v2 config and resolves active profile endpoint", async () => {
+ 	const file = await tempConfig({
+ 		version: 2,
+@@ -87,6 +134,36 @@ test("CLI stays backward compatible with v1 files and writes v2 files", async ()
+ 	assert.equal(written.profiles.default.endpoint, "http://new");
+ });
+ 
++test("invalid config shape fails with an actionable error and does not overwrite the file", async () => {
++	const file = await tempConfig({
++		version: 2,
++		activeProfile: "missing",
++		profiles: { default: { endpoint: "http://default" } },
++	});
++	const before = await readFile(file, "utf8");
++
++	await assert.rejects(() => loadConfig(file), /Invalid config.*activeProfile.*damaged config file.*not overwritten/);
++	assert.equal(await readFile(file, "utf8"), before);
++});
++
++test("CLI does not overwrite damaged JSON", async () => {
++	const dir = await mkdtemp(join(tmpdir(), "config-migration-"));
++	const file = join(dir, "config.json");
++	await writeFile(file, '{"endpoint":', "utf8");
++
++	await assert.rejects(
++		() =>
++			execFileAsync(process.execPath, ["src/cli.ts", "set-endpoint", file, "http://new"], {
++				cwd: new URL("..", import.meta.url),
++			}),
++		(error: unknown) => {
++			assert.match(String((error as { stderr?: string }).stderr), /Invalid config JSON.*damaged config file.*not overwritten/);
++			return true;
++		},
++	);
++	assert.equal(await readFile(file, "utf8"), '{"endpoint":');
++});
++
+ test("damaged config fails with an actionable error and does not overwrite the file", async () => {
+ 	const dir = await mkdtemp(join(tmpdir(), "config-migration-"));
+ 	const file = join(dir, "config.json");

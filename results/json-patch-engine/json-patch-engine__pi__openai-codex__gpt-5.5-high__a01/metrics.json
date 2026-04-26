@@ -1,0 +1,48 @@
+{
+  "task_id": "json-patch-engine",
+  "run_id": "json-patch-engine__pi__openai-codex__gpt-5.5-high__a01",
+  "branch": "runs/json-patch-engine/pi-openai-codex-gpt-5.5-high/a01",
+  "commit": "9276935477fae37019007b3b478b60a5303b6e37",
+  "agent": "pi",
+  "provider": "openai-codex",
+  "model": "gpt-5.5",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:24:26.517Z",
+    "finished": "2026-04-26T17:26:35.757Z"
+  },
+  "tokens": {
+    "input": 16405,
+    "output": 8515,
+    "cache_read": 55808,
+    "cache_write": 0,
+    "total": 80728
+  },
+  "cost": {
+    "estimated_usd": 0.365379,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenAI/Codex subscription billing not separately queried"
+  },
+  "runtime": {
+    "duration_ms": 131878
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/json-patch-engine",
+      "status": "passed",
+      "passed": 8,
+      "notes": "Verified by orchestrator after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

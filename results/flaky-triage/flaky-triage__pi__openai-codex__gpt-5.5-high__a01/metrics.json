@@ -1,0 +1,48 @@
+{
+  "task_id": "flaky-triage",
+  "run_id": "flaky-triage__pi__openai-codex__gpt-5.5-high__a01",
+  "branch": "runs/flaky-triage/pi-openai-codex-gpt-5.5-high/a01",
+  "commit": "a18bb5ac69f6f98ef0607a4a6c2b43d064ee1c70",
+  "agent": "pi",
+  "provider": "openai-codex",
+  "model": "gpt-5.5",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:29:24.307Z",
+    "finished": "2026-04-26T17:30:09.386Z"
+  },
+  "tokens": {
+    "input": 10194,
+    "output": 2244,
+    "cache_read": 38912,
+    "cache_write": 0,
+    "total": 51350
+  },
+  "cost": {
+    "estimated_usd": 0.137746,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenAI/Codex subscription billing not separately queried"
+  },
+  "runtime": {
+    "duration_ms": 47397
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/flaky-triage",
+      "status": "passed",
+      "passed": 5,
+      "notes": "Verified by orchestrator after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "task_id": "config-migration",
+  "run_id": "config-migration__pi__openai-codex__gpt-5.5-high__a01",
+  "branch": "runs/config-migration/pi-openai-codex-gpt-5.5-high/a01",
+  "commit": "43e7089b71143c32a254f63912c5dfe19f62802a",
+  "agent": "pi",
+  "provider": "openai-codex",
+  "model": "gpt-5.5",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-26T17:27:08.310Z",
+    "finished": "2026-04-26T17:28:47.223Z"
+  },
+  "tokens": {
+    "input": 25699,
+    "output": 6322,
+    "cache_read": 55808,
+    "cache_write": 0,
+    "total": 87829
+  },
+  "cost": {
+    "estimated_usd": 0.346059,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenAI/Codex subscription billing not separately queried"
+  },
+  "runtime": {
+    "duration_ms": 102062
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/config-migration",
+      "status": "passed",
+      "passed": 10,
+      "notes": "Verified by orchestrator after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 40,
+    "behavioral_correctness": 25,
+    "code_quality": 15,
+    "agent_process": 10,
+    "cost": 5,
+    "runtime": 5,
+    "total": 100
+  }
+}

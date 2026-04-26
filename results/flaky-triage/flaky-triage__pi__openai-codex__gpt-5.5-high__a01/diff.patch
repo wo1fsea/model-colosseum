@@ -1,0 +1,77 @@
+diff --git a/fixtures/flaky-triage/src/asyncBatch.ts b/fixtures/flaky-triage/src/asyncBatch.ts
+index 3eb220c..9b28940 100644
+--- a/fixtures/flaky-triage/src/asyncBatch.ts
++++ b/fixtures/flaky-triage/src/asyncBatch.ts
+@@ -1,10 +1,5 @@
+ export async function collectInCompletionOrder<T>(tasks: Array<() => Promise<T>>): Promise<T[]> {
+-	const results: T[] = [];
+-	await Promise.all(
+-		tasks.map(async (task) => {
+-			results.push(await task());
+-		}),
+-	);
++	const results = await Promise.all(tasks.map((task) => task()));
+ 	return results;
+ }
+ 
+diff --git a/fixtures/flaky-triage/src/dateBucket.ts b/fixtures/flaky-triage/src/dateBucket.ts
+index e01f54b..13da3c4 100644
+--- a/fixtures/flaky-triage/src/dateBucket.ts
++++ b/fixtures/flaky-triage/src/dateBucket.ts
+@@ -2,7 +2,7 @@ export function bucketByUtcDay(isoTimestamps: string[]): Record<string, number>
+ 	const buckets: Record<string, number> = {};
+ 	for (const timestamp of isoTimestamps) {
+ 		const date = new Date(timestamp);
+-		const key = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
++		const key = `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+ 		buckets[key] = (buckets[key] ?? 0) + 1;
+ 	}
+ 	return buckets;
+diff --git a/fixtures/flaky-triage/src/sessionStore.ts b/fixtures/flaky-triage/src/sessionStore.ts
+index 5d2f905..7a62afc 100644
+--- a/fixtures/flaky-triage/src/sessionStore.ts
++++ b/fixtures/flaky-triage/src/sessionStore.ts
+@@ -9,7 +9,10 @@ const defaultSession: Session = {
+ };
+ 
+ export function createSession(overrides: Partial<Session> = {}): Session {
+-	return Object.assign(defaultSession, overrides);
++	return {
++		id: overrides.id ?? defaultSession.id,
++		roles: [...(overrides.roles ?? defaultSession.roles)],
++	};
+ }
+ 
+ export function addRole(session: Session, role: string): Session {
+diff --git a/fixtures/flaky-triage/test/flaky.test.ts b/fixtures/flaky-triage/test/flaky.test.ts
+index 19b93b2..a095b52 100644
+--- a/fixtures/flaky-triage/test/flaky.test.ts
++++ b/fixtures/flaky-triage/test/flaky.test.ts
+@@ -18,10 +18,11 @@ test("UTC day bucketing is stable across local timezones", () => {
+ 	const buckets = bucketByUtcDay([
+ 		"2026-04-02T01:15:00Z",
+ 		"2026-04-02T23:30:00Z",
++		"2026-04-01T23:30:00-02:00",
+ 	]);
+ 
+ 	assert.deepEqual(buckets, {
+-		"2026-04-02": 2,
++		"2026-04-02": 3,
+ 	});
+ });
+ 
+@@ -39,3 +40,14 @@ test("session factory remains isolated over repeated calls", () => {
+ 		assert.deepEqual(session.roles, []);
+ 	}
+ });
++
++test("session factory clones supplied roles", () => {
++	const roles = ["reader"];
++	const session = createSession({ id: "reader", roles });
++
++	roles.push("writer");
++	addRole(session, "admin");
++
++	assert.deepEqual(roles, ["reader", "writer"]);
++	assert.deepEqual(session, { id: "reader", roles: ["reader", "admin"] });
++});

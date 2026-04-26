@@ -1,0 +1,278 @@
+diff --git a/fixtures/json-patch-engine/src/index.ts b/fixtures/json-patch-engine/src/index.ts
+index d7abf8a..5ab9659 100644
+--- a/fixtures/json-patch-engine/src/index.ts
++++ b/fixtures/json-patch-engine/src/index.ts
+@@ -15,53 +15,222 @@ export class JsonPatchError extends Error {
+ 	}
+ }
+ 
++type PatchDocument = JsonValue | undefined;
++type JsonObject = { [key: string]: JsonValue };
++type JsonContainer = JsonValue[] | JsonObject;
++
+ export function applyPatch<T extends JsonValue>(document: T, operations: JsonPatchOperation[]): T {
+-	let next = clone(document);
++	let next: PatchDocument = clone(document);
+ 	for (const operation of operations) {
+-		next = applyOperation(next, operation) as T;
++		next = applyOperation(next, operation);
+ 	}
+-	return next;
++	return next as T;
+ }
+ 
+-function applyOperation(document: JsonValue, operation: JsonPatchOperation): JsonValue {
++function applyOperation(document: PatchDocument, operation: JsonPatchOperation): PatchDocument {
+ 	switch (operation.op) {
+ 		case "add":
+-			return setAtPath(document, operation.path, operation.value);
++			return addAtPath(document, operation.path, operation.value);
++		case "remove":
++			return removeAtPath(document, operation.path).document;
+ 		case "replace":
+-			return setAtPath(document, operation.path, operation.value);
++			return replaceAtPath(document, operation.path, operation.value);
++		case "move":
++			return moveValue(document, operation.from, operation.path);
++		case "copy":
++			return addAtPath(document, operation.path, getAtPath(document, operation.from));
++		case "test":
++			if (!isEqual(getAtPath(document, operation.path), operation.value)) {
++				throw new JsonPatchError(`Test operation failed at path: ${operation.path}`);
++			}
++			return document;
+ 		default:
+-			throw new JsonPatchError(`Unsupported operation: ${operation.op}`);
++			throw new JsonPatchError(`Unsupported operation: ${(operation as { op: string }).op}`);
+ 	}
+ }
+ 
+-function setAtPath(document: JsonValue, path: string, value: JsonValue): JsonValue {
+-	if (path === "") return clone(value);
++function addAtPath(document: PatchDocument, path: string, value: JsonValue): PatchDocument {
+ 	const parts = parsePointer(path);
+-	const root = clone(document);
+-	let target: JsonValue = root;
++	if (parts.length === 0) return clone(value);
++
++	const root = clonePatchDocument(document);
++	const { parent, key } = getParent(root, parts, path);
++	addToContainer(parent, key, value, path);
++	return root;
++}
++
++function removeAtPath(document: PatchDocument, path: string): { document: PatchDocument; removed: JsonValue } {
++	const parts = parsePointer(path);
++	if (parts.length === 0) {
++		if (document === undefined) throw new JsonPatchError(`Path does not exist: ${path}`);
++		return { document: undefined, removed: clone(document) };
++	}
++
++	const root = clonePatchDocument(document);
++	const { parent, key } = getParent(root, parts, path);
++	const removed = removeFromContainer(parent, key, path);
++	return { document: root, removed };
++}
+ 
++function replaceAtPath(document: PatchDocument, path: string, value: JsonValue): PatchDocument {
++	const parts = parsePointer(path);
++	if (parts.length === 0) return clone(value);
++
++	const root = clonePatchDocument(document);
++	const { parent, key } = getParent(root, parts, path);
++	replaceInContainer(parent, key, value, path);
++	return root;
++}
++
++function moveValue(document: PatchDocument, from: string, path: string): PatchDocument {
++	const fromParts = parsePointer(from);
++	const pathParts = parsePointer(path);
++	if (isProperPrefix(fromParts, pathParts)) {
++		throw new JsonPatchError(`Cannot move a value into one of its descendants: ${path}`);
++	}
++
++	const { document: withoutSource, removed } = removeAtPath(document, from);
++	return addAtPath(withoutSource, path, removed);
++}
++
++function getAtPath(document: PatchDocument, path: string): JsonValue {
++	const parts = parsePointer(path);
++	if (parts.length === 0) {
++		if (document === undefined) throw new JsonPatchError(`Path does not exist: ${path}`);
++		return clone(document);
++	}
++
++	let target: PatchDocument = document;
++	for (let i = 0; i < parts.length; i++) {
++		target = getChild(target, parts[i], `/${parts.slice(0, i + 1).join("/")}`);
++	}
++	return clone(target);
++}
++
++function getParent(document: PatchDocument, parts: string[], path: string): { parent: JsonContainer; key: string } {
++	let target: PatchDocument = document;
+ 	for (let i = 0; i < parts.length - 1; i++) {
+-		if (target === null || typeof target !== "object") {
+-			throw new JsonPatchError(`Cannot traverse through non-container at ${parts.slice(0, i + 1).join("/")}`);
+-		}
+-		target = (target as Record<string, JsonValue>)[parts[i]];
++		target = getChild(target, parts[i], `/${parts.slice(0, i + 1).join("/")}`);
+ 	}
+ 
+-	const key = parts.at(-1);
+-	if (key === undefined || target === null || typeof target !== "object" || Array.isArray(target)) {
+-		throw new JsonPatchError(`Invalid object path: ${path}`);
++	if (!isContainer(target)) {
++		throw new JsonPatchError(`Invalid parent path: ${path}`);
+ 	}
+ 
+-	(target as Record<string, JsonValue>)[key] = clone(value);
+-	return root;
++	return { parent: target, key: parts[parts.length - 1] };
++}
++
++function getChild(target: PatchDocument, key: string, path: string): JsonValue {
++	if (!isContainer(target)) {
++		throw new JsonPatchError(`Cannot traverse through non-container at ${path}`);
++	}
++
++	if (Array.isArray(target)) {
++		const index = parseArrayIndex(key, target.length - 1, path);
++		return target[index];
++	}
++
++	if (!Object.prototype.hasOwnProperty.call(target, key)) {
++		throw new JsonPatchError(`Path does not exist: ${path}`);
++	}
++	return target[key];
++}
++
++function addToContainer(parent: JsonContainer, key: string, value: JsonValue, path: string): void {
++	if (Array.isArray(parent)) {
++		const index = key === "-" ? parent.length : parseArrayIndex(key, parent.length, path);
++		parent.splice(index, 0, clone(value));
++		return;
++	}
++
++	parent[key] = clone(value);
++}
++
++function removeFromContainer(parent: JsonContainer, key: string, path: string): JsonValue {
++	if (Array.isArray(parent)) {
++		const index = parseArrayIndex(key, parent.length - 1, path);
++		return parent.splice(index, 1)[0];
++	}
++
++	if (!Object.prototype.hasOwnProperty.call(parent, key)) {
++		throw new JsonPatchError(`Path does not exist: ${path}`);
++	}
++	const removed = parent[key];
++	delete parent[key];
++	return removed;
++}
++
++function replaceInContainer(parent: JsonContainer, key: string, value: JsonValue, path: string): void {
++	if (Array.isArray(parent)) {
++		const index = parseArrayIndex(key, parent.length - 1, path);
++		parent[index] = clone(value);
++		return;
++	}
++
++	if (!Object.prototype.hasOwnProperty.call(parent, key)) {
++		throw new JsonPatchError(`Path does not exist: ${path}`);
++	}
++	parent[key] = clone(value);
++}
++
++function parseArrayIndex(key: string, max: number, path: string): number {
++	if (!/^(0|[1-9]\d*)$/.test(key)) {
++		throw new JsonPatchError(`Invalid array index at ${path}: ${key}`);
++	}
++
++	const index = Number(key);
++	if (!Number.isSafeInteger(index) || index < 0 || index > max) {
++		throw new JsonPatchError(`Array index out of bounds at ${path}: ${key}`);
++	}
++	return index;
+ }
+ 
+ function parsePointer(path: string): string[] {
++	if (path === "") return [];
+ 	if (!path.startsWith("/")) throw new JsonPatchError(`Invalid JSON pointer: ${path}`);
++
+ 	return path
+ 		.slice(1)
+ 		.split("/")
+-		.map((part) => part.replace(/~1/g, "/").replace(/~0/g, "~"));
++		.map((part) => {
++			if (/(~$|~[^01])/.test(part)) throw new JsonPatchError(`Invalid JSON pointer escape: ${path}`);
++			return part.replace(/~1/g, "/").replace(/~0/g, "~");
++		});
++}
++
++function isContainer(value: PatchDocument): value is JsonContainer {
++	return value !== null && value !== undefined && typeof value === "object";
++}
++
++function isProperPrefix(prefix: string[], value: string[]): boolean {
++	return prefix.length < value.length && prefix.every((part, index) => part === value[index]);
++}
++
++function isEqual(left: JsonValue, right: JsonValue): boolean {
++	if (left === right) return true;
++	if (typeof left !== typeof right || left === null || right === null) return false;
++
++	if (Array.isArray(left) || Array.isArray(right)) {
++		if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) return false;
++		return left.every((item, index) => isEqual(item, right[index]));
++	}
++
++	if (typeof left === "object") {
++		const leftObject = left as JsonObject;
++		const rightObject = right as JsonObject;
++		const leftKeys = Object.keys(leftObject);
++		const rightKeys = Object.keys(rightObject);
++		return (
++			leftKeys.length === rightKeys.length &&
++			leftKeys.every((key) => Object.prototype.hasOwnProperty.call(rightObject, key) && isEqual(leftObject[key], rightObject[key]))
++		);
++	}
++
++	return false;
++}
++
++function clonePatchDocument(value: PatchDocument): PatchDocument {
++	return value === undefined ? undefined : clone(value);
+ }
+ 
+ function clone<T extends JsonValue>(value: T): T {
+diff --git a/fixtures/json-patch-engine/test/json-patch.test.ts b/fixtures/json-patch-engine/test/json-patch.test.ts
+index 950f81d..ac0c9f8 100644
+--- a/fixtures/json-patch-engine/test/json-patch.test.ts
++++ b/fixtures/json-patch-engine/test/json-patch.test.ts
+@@ -65,3 +65,25 @@ test("is atomic when any operation fails", () => {
+ 
+ 	assert.deepEqual(input, { a: { b: 1 }, list: ["x"] });
+ });
++
++test("supports JSON Pointer escaping", () => {
++	const output = applyPatch({ "a/b": { "c~d": 1 } }, [
++		{ op: "test", path: "/a~1b/c~0d", value: 1 },
++		{ op: "replace", path: "/a~1b/c~0d", value: 2 },
++		{ op: "add", path: "/a~1b/e~1f", value: true },
++	]);
++
++	assert.deepEqual(output, { "a/b": { "c~d": 2, "e/f": true } });
++});
++
++test("requires replace, remove, and copy targets to exist", () => {
++	assert.throws(() => applyPatch({ a: 1 }, [{ op: "replace", path: "/missing", value: 2 }]), JsonPatchError);
++	assert.throws(() => applyPatch({ a: 1 }, [{ op: "remove", path: "/missing" }]), JsonPatchError);
++	assert.throws(() => applyPatch({ a: 1 }, [{ op: "copy", from: "/missing", path: "/b" }]), JsonPatchError);
++});
++
++test("handles root paths and move uses remove-before-add semantics", () => {
++	assert.deepEqual(applyPatch({ a: 1 }, [{ op: "replace", path: "", value: { b: 2 } }]), { b: 2 });
++	assert.deepEqual(applyPatch(["a", "b", "c"], [{ op: "move", from: "/0", path: "/2" }]), ["b", "c", "a"]);
++	assert.throws(() => applyPatch({ a: { b: 1 } }, [{ op: "move", from: "/a", path: "/a/b/c" }]), JsonPatchError);
++});
