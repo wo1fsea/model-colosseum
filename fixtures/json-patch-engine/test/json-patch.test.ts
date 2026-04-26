@@ -65,3 +65,25 @@ test("is atomic when any operation fails", () => {
 
 	assert.deepEqual(input, { a: { b: 1 }, list: ["x"] });
 });
+
+test("supports JSON Pointer escaping", () => {
+	const output = applyPatch({ "a/b": { "c~d": 1 } }, [
+		{ op: "test", path: "/a~1b/c~0d", value: 1 },
+		{ op: "replace", path: "/a~1b/c~0d", value: 2 },
+		{ op: "add", path: "/a~1b/e~1f", value: true },
+	]);
+
+	assert.deepEqual(output, { "a/b": { "c~d": 2, "e/f": true } });
+});
+
+test("requires replace, remove, and copy targets to exist", () => {
+	assert.throws(() => applyPatch({ a: 1 }, [{ op: "replace", path: "/missing", value: 2 }]), JsonPatchError);
+	assert.throws(() => applyPatch({ a: 1 }, [{ op: "remove", path: "/missing" }]), JsonPatchError);
+	assert.throws(() => applyPatch({ a: 1 }, [{ op: "copy", from: "/missing", path: "/b" }]), JsonPatchError);
+});
+
+test("handles root paths and move uses remove-before-add semantics", () => {
+	assert.deepEqual(applyPatch({ a: 1 }, [{ op: "replace", path: "", value: { b: 2 } }]), { b: 2 });
+	assert.deepEqual(applyPatch(["a", "b", "c"], [{ op: "move", from: "/0", path: "/2" }]), ["b", "c", "a"]);
+	assert.throws(() => applyPatch({ a: { b: 1 } }, [{ op: "move", from: "/a", path: "/a/b/c" }]), JsonPatchError);
+});
