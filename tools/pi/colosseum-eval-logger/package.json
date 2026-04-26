@@ -1,0 +1,20 @@
+{
+  "name": "colosseum-eval-logger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pi extension for recording Model Colosseum evaluation runs.",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "model-eval"
+  ],
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-ai": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  }
+}

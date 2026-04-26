@@ -11,6 +11,30 @@ The first round focuses on Pi + OpenRouter model runs, but the repo is intention
 - Compare model behavior using the same repository instructions.
 - Preserve raw run artifacts without turning the repo into a giant benchmark framework too early.
 
+## Repository Model
+
+`main` is the control plane:
+
+- task definitions
+- fixture projects
+- tools and logging extensions
+- run manifests
+- evaluation summaries
+
+Model-written engineering work lives on run branches:
+
+```text
+runs/<task-id>/<agent>-<provider>-<model>/<attempt>
+```
+
+Example:
+
+```text
+runs/json-patch-engine/pi-openrouter-kimi-k2.6/a01
+```
+
+Use one branch per model attempt, not one permanent branch per model. After a run finishes, record the branch, commit SHA, patch, logs, metrics, and evaluation under `results/<task-id>/<run-id>/` on `main`.
+
 ## First Models
 
 - `xiaomi/mimo-v2-pro`
@@ -23,10 +47,14 @@ The first round focuses on Pi + OpenRouter model runs, but the repo is intention
 ```text
 .
 ├── AGENTS.md
+├── fixtures/
+│   └── README.md
 ├── tasks/
 │   └── README.md
 ├── results/
 │   └── README.md
+├── tools/
+│   └── pi/
 ├── scripts/
 │   └── README.md
 └── docs/
@@ -42,3 +70,8 @@ Plan -> Implement -> Test -> Fix
 ```
 
 See `AGENTS.md` for the exact instructions.
+
+## Key Docs
+
+- [Repository organization](docs/repository-organization.md)
+- [Scoring rubric](docs/scoring-rubric.md)

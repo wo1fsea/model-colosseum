@@ -1,0 +1,45 @@
+{
+  "task_id": "",
+  "run_id": "",
+  "branch": "",
+  "commit": "",
+  "agent": "",
+  "provider": "",
+  "model": "",
+  "attempt": "",
+  "timestamps": {
+    "started": "",
+    "finished": ""
+  },
+  "tokens": {
+    "input": null,
+    "output": null,
+    "cache_read": null,
+    "cache_write": null,
+    "total": null
+  },
+  "cost": {
+    "estimated_usd": null,
+    "billed_usd": null,
+    "source": ""
+  },
+  "runtime": {
+    "duration_ms": null
+  },
+  "tests": [
+    {
+      "command": "",
+      "status": "",
+      "notes": ""
+    }
+  ],
+  "scores": {
+    "tests_pass": null,
+    "behavioral_correctness": null,
+    "code_quality": null,
+    "agent_process": null,
+    "cost": null,
+    "runtime": null,
+    "total": null
+  }
+}
