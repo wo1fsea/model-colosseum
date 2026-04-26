@@ -2,7 +2,7 @@ export function bucketByUtcDay(isoTimestamps: string[]): Record<string, number> 
 	const buckets: Record<string, number> = {};
 	for (const timestamp of isoTimestamps) {
 		const date = new Date(timestamp);
-		const key = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+		const key = `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
 		buckets[key] = (buckets[key] ?? 0) + 1;
 	}
 	return buckets;

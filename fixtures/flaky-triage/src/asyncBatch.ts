@@ -1,11 +1,5 @@
 export async function collectInCompletionOrder<T>(tasks: Array<() => Promise<T>>): Promise<T[]> {
-	const results: T[] = [];
-	await Promise.all(
-		tasks.map(async (task) => {
-			results.push(await task());
-		}),
-	);
-	return results;
+	return Promise.all(tasks.map((task) => task()));
 }
 
 export function delay<T>(ms: number, value: T): Promise<T> {
