@@ -22,15 +22,46 @@ export interface AppConfigV2 {
 
 export type AppConfig = AppConfigV1 | AppConfigV2;
 
+export function migrateToV2(config: AppConfigV1): AppConfigV2 {
+	const timeoutMs = config.timeoutMs ?? 5000;
+	return {
+		version: 2,
+		activeProfile: "default",
+		profiles: {
+			default: {
+				endpoint: config.endpoint,
+				token: config.token,
+				timeoutMs,
+			},
+		},
+	};
+}
+
 export async function loadConfig(path: string): Promise<AppConfig> {
-	const raw = await readFile(path, "utf8");
-	const parsed = JSON.parse(raw) as AppConfig;
-	if ("profiles" in parsed) return parsed;
-	return parsed;
+	let raw: string;
+	try {
+		raw = await readFile(path, "utf8");
+	} catch (error) {
+		throw new Error(`Failed to read config file: ${error instanceof Error ? error.message : String(error)}`);
+	}
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(raw);
+	} catch (error) {
+		throw new Error(`Invalid config JSON: ${error instanceof Error ? error.message : String(error)}`);
+	}
+	if (typeof parsed !== "object" || parsed === null) {
+		throw new Error("Config must be an object");
+	}
+	const config = parsed as AppConfig;
+	if ("profiles" in config) return config;
+	return migrateToV2(config as AppConfigV1);
 }
 
 export async function saveConfig(path: string, config: AppConfig): Promise<void> {
-	await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+	const v2Config: AppConfigV2 =
+		"profiles" in config ? config : migrateToV2(config as AppConfigV1);
+	await writeFile(path, `${JSON.stringify(v2Config, null, 2)}\n`, "utf8");
 }
 
 export function getActiveEndpoint(config: AppConfig): string {
@@ -45,5 +76,7 @@ export function setEndpoint(config: AppConfig, endpoint: string): AppConfig {
 		config.profiles[config.activeProfile].endpoint = endpoint;
 		return config;
 	}
-	return { ...config, endpoint };
+	const v2 = migrateToV2(config as AppConfigV1);
+	v2.profiles.default.endpoint = endpoint;
+	return v2;
 }
