@@ -1,0 +1,67 @@
+
+> config-migration-fixture@0.1.0 test
+> node --test
+
+✖ loads v1 config and migrates it to v2 shape (12.618458ms)
+✔ loads v2 config and resolves active profile endpoint (2.119458ms)
+✔ setEndpoint preserves v2 profiles and updates only active profile (0.201458ms)
+✖ CLI stays backward compatible with v1 files and writes v2 files (234.080958ms)
+✔ damaged config fails with an actionable error and does not overwrite the file (2.725458ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 452.92725
+
+✖ failing tests:
+
+test at test/config.test.ts:19:1
+✖ loads v1 config and migrates it to v2 shape (12.618458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   endpoint: 'https://api.example.com',
+  +   timeoutMs: 5000,
+  +   token: 'secret'
+  -   activeProfile: 'default',
+  -   profiles: {
+  -     default: {
+  -       endpoint: 'https://api.example.com',
+  -       timeoutMs: 5000,
+  -       token: 'secret'
+  -     }
+  -   },
+  -   version: 2
+    }
+  
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/config-migration__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/config-migration/test/config.test.ts:23:9)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { endpoint: 'https://api.example.com', token: 'secret', timeoutMs: 5000 },
+    expected: { version: 2, activeProfile: 'default', profiles: { default: [Object] } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/config.test.ts:72:1
+✖ CLI stays backward compatible with v1 files and writes v2 files (234.080958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 2
+  
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/config-migration__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/config-migration/test/config.test.ts:85:9)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

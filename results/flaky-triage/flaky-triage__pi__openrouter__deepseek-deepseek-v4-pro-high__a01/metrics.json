@@ -1,0 +1,49 @@
+{
+  "task_id": "flaky-triage",
+  "run_id": "flaky-triage__pi__openrouter__deepseek-deepseek-v4-pro-high__a01",
+  "branch": "runs/flaky-triage/pi-openrouter-deepseek-deepseek-v4-pro-high/a01",
+  "commit": "1a356e9c1d345819190b689bb662a3d0f4afd0b1",
+  "agent": "pi",
+  "provider": "openrouter",
+  "model": "deepseek/deepseek-v4-pro",
+  "thinking": "high",
+  "attempt": "a01",
+  "timestamps": {
+    "started": "2026-04-27T13:57:08.920Z",
+    "finished": "2026-04-27T13:57:30.833Z"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "cache_read": 0,
+    "cache_write": 0,
+    "total": 0
+  },
+  "cost": {
+    "estimated_usd": 0,
+    "billed_usd": null,
+    "source": "pi usage estimate; OpenRouter dashboard not queried by this script"
+  },
+  "runtime": {
+    "duration_ms": 10134
+  },
+  "tests": [
+    {
+      "command": "npm test",
+      "cwd": "fixtures/flaky-triage",
+      "status": "failed",
+      "passed": 0,
+      "expected": 5,
+      "notes": "Verified by runner after Pi run."
+    }
+  ],
+  "scores": {
+    "tests_pass": 0,
+    "behavioral_correctness": 0,
+    "code_quality": 0,
+    "agent_process": 0,
+    "cost": 0,
+    "runtime": 0,
+    "total": 0
+  }
+}

@@ -1,0 +1,120 @@
+
+> flaky-triage-fixture@0.1.0 test
+> node --test
+
+✖ async batch preserves input order even when tasks complete out of order (24.725917ms)
+✖ UTC day bucketing is stable across local timezones (1.056958ms)
+✖ sessions do not share mutable role arrays (0.642917ms)
+✖ session factory remains isolated over repeated calls (0.158084ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 182.232208
+
+✖ failing tests:
+
+test at test/flaky.test.ts:7:1
+✖ async batch preserves input order even when tasks complete out of order (24.725917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  -   'first',
+      'second',
+      'third',
+  +   'first'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/flaky-triage__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/flaky-triage/test/flaky.test.ts:14:9)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'second', 'third', 'first' ],
+    expected: [ 'first', 'second', 'third' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/flaky.test.ts:17:1
+✖ UTC day bucketing is stable across local timezones (1.056958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   '2026-04-02': 1,
+  +   '2026-04-03': 1
+  -   '2026-04-02': 2
+    }
+  
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/flaky-triage__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/flaky-triage/test/flaky.test.ts:23:9)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { '2026-04-02': 1, '2026-04-03': 1 },
+    expected: { '2026-04-02': 2 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/flaky.test.ts:28:1
+✖ sessions do not share mutable role arrays (0.642917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   id: 'guest',
+  -   id: 'admin',
+      roles: [
+        'admin'
+      ]
+    }
+  
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/flaky-triage__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/flaky-triage/test/flaky.test.ts:32:9)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: 'user-0', roles: [ 'admin' ] },
+    expected: { id: 'admin', roles: [ 'admin' ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/flaky.test.ts:36:1
+✖ session factory remains isolated over repeated calls (0.158084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'admin'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/flaky-triage__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/flaky-triage/test/flaky.test.ts:39:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'admin' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

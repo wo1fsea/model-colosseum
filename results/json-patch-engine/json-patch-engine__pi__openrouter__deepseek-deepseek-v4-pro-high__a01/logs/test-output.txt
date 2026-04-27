@@ -1,0 +1,59 @@
+
+> json-patch-engine-fixture@0.1.0 test
+> node --test
+
+✔ adds and replaces nested object values without mutating the original (3.339459ms)
+✖ supports array insert, append, remove, and replace (0.282166ms)
+✖ supports copy and move with deep-copy behavior (0.085209ms)
+✖ supports test operation and fails loudly when values differ (0.076667ms)
+✔ is atomic when any operation fails (0.349333ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 172.124416
+
+✖ failing tests:
+
+test at test/json-patch.test.ts:16:1
+✖ supports array insert, append, remove, and replace (0.282166ms)
+  Error [JsonPatchError]: Invalid object path: /items/1
+      at setAtPath (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:52:9)
+      at applyOperation (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:29:11)
+      at applyPatch (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:21:10)
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/test/json-patch.test.ts:17:17)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at test/json-patch.test.ts:27:1
+✖ supports copy and move with deep-copy behavior (0.085209ms)
+  Error [JsonPatchError]: Unsupported operation: copy
+      at applyOperation (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:33:10)
+      at applyPatch (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:21:10)
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/test/json-patch.test.ts:29:17)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
+
+test at test/json-patch.test.ts:42:1
+✖ supports test operation and fails loudly when values differ (0.076667ms)
+  Error [JsonPatchError]: Unsupported operation: test
+      at applyOperation (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:33:10)
+      at applyPatch (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/src/index.ts:21:10)
+      at TestContext.<anonymous> (file:///Users/huangquanyong/Projects/model-colosseum-worktrees/json-patch-engine__pi__openrouter__deepseek-deepseek-v4-pro-high__a01/fixtures/json-patch-engine/test/json-patch.test.ts:44:3)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7)
