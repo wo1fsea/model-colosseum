@@ -8,21 +8,46 @@ const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const worktreeRoot = resolve(repoRoot, "..", "model-colosseum-worktrees");
 const attempt = process.env.COLOSSEUM_ATTEMPT ?? "a01";
 const thinking = process.env.COLOSSEUM_THINKING ?? "high";
+const modelFilter = parseFilter(process.env.COLOSSEUM_MODEL_FILTER);
+const taskFilter = parseFilter(process.env.COLOSSEUM_TASK_FILTER);
 
-const tasks = [
+const allTasks = [
 	{ id: "json-patch-engine", fixture: "fixtures/json-patch-engine", expectedTests: 8 },
 	{ id: "config-migration", fixture: "fixtures/config-migration", expectedTests: 10 },
 	{ id: "flaky-triage", fixture: "fixtures/flaky-triage", expectedTests: 5 },
 ];
 
-const models = [
+const allModels = [
 	{ id: "xiaomi/mimo-v2-pro", slug: "xiaomi-mimo-v2-pro" },
 	{ id: "z-ai/glm-5.1", slug: "z-ai-glm-5.1" },
 	{ id: "moonshotai/kimi-k2.6", slug: "moonshotai-kimi-k2.6" },
 	{ id: "minimax/minimax-m2.7", slug: "minimax-minimax-m2.7" },
+	{ id: "deepseek/deepseek-v4-pro", slug: "deepseek-deepseek-v4-pro" },
+	{ id: "deepseek/deepseek-v4-flash", slug: "deepseek-deepseek-v4-flash" },
 ];
 
+const tasks = filterByIdOrSlug(allTasks, taskFilter);
+const models = filterByIdOrSlug(allModels, modelFilter);
 const startedAt = new Date().toISOString();
+
+function parseFilter(value) {
+	if (!value) return null;
+	return new Set(
+		value
+			.split(",")
+			.map((part) => part.trim())
+			.filter(Boolean),
+	);
+}
+
+function filterByIdOrSlug(items, filter) {
+	if (!filter) return items;
+	const selected = items.filter((item) => filter.has(item.id) || filter.has(item.slug));
+	if (selected.length === 0) {
+		throw new Error(`Filter did not match any item: ${[...filter].join(", ")}`);
+	}
+	return selected;
+}
 
 function runId(task, model) {
 	return `${task.id}__pi__openrouter__${model.slug}-${thinking}__${attempt}`;

@@ -15,9 +15,11 @@ const includeModels = new Set([
 	"z-ai/glm-5.1",
 	"moonshotai/kimi-k2.6",
 	"minimax/minimax-m2.7",
+	"deepseek/deepseek-v4-pro",
+	"deepseek/deepseek-v4-flash",
 ]);
 
-const metrics = discoverMetrics().filter((metric) => includeModels.has(metric.model));
+const metrics = discoverMetrics().filter((metric) => includeModels.has(metric.model) && metric.tests?.[0]?.status === "passed");
 const tempDirs = [];
 
 try {
@@ -316,7 +318,15 @@ function compareRows(a, b) {
 }
 
 function modelRank(model) {
-	return ["gpt-5.5", "minimax/minimax-m2.7", "xiaomi/mimo-v2-pro", "z-ai/glm-5.1", "moonshotai/kimi-k2.6"].indexOf(model);
+	return [
+		"gpt-5.5",
+		"minimax/minimax-m2.7",
+		"xiaomi/mimo-v2-pro",
+		"z-ai/glm-5.1",
+		"moonshotai/kimi-k2.6",
+		"deepseek/deepseek-v4-pro",
+		"deepseek/deepseek-v4-flash",
+	].indexOf(model);
 }
 
 function renderConsole(rows) {
